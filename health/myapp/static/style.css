@@ -1,0 +1,16 @@
+#navregistration
+{
+    background-color: black;
+    height:20;
+}
+#cardregistration
+{
+     width:auto;
+
+}
+#registrationdiv1
+{
+   background-color: white;
+   display: flex;
+   justify-content: center !important;
+}
