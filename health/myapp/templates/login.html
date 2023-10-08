@@ -20,7 +20,7 @@
             <div class="col-md-4 col-md-12 ">
               <div class="card-body p-5 text-black">
 
-                   <form action="{% url 'myapp:two_factor' %}" method="POST">
+                   <form action="{% url 'myapp:login_user' %}" method="POST">
                     {% csrf_token %}
                     {% for hidden in loginform.hidden_fields %}
                         {{ hidden }}

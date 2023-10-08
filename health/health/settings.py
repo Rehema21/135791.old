@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'myapp',
     'widget_tweaks',
     'health',
-    'django_otp',
+    # 'two_factor',
+     'django_otp',
+    # 'otp_yubikey',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django_otp.middleware.OTPMiddleware',
 ]
 
 ROOT_URLCONF = 'health.urls'
@@ -102,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
+# LOGIN_URL = 'two_factor:login'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -129,8 +132,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # settings.py
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'your-smtp-host.com'
-EMAIL_PORT = 587
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '587'
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'mrema293@gmail.com'
 DEFAULT_FROM_EMAIL = 'mrema293@gmail.com'

@@ -32,7 +32,7 @@
               </div>
               <center><h2 class="card-title text-info">VERIFICATION</h2></center><br>
               <div class="container d-flex flex-column col-md-12 ">
-                     <form action="{% url 'myapp:two_factor' %}" method="POST">
+                     <form action="{% url 'myapp:twofactor' %}" method="POST">
                         {% csrf_token %}
                          <div class="row d-flex d-inline-block">
                              <center><div class="col-md-6 form-group ">
