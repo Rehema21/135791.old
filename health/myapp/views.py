@@ -50,11 +50,11 @@ def registration_user(request):
 			username = form.cleaned_data["username"]
 			email = form.cleaned_data["email"]
 			form.save()
-			# user =registration_user.objects.create(email)
+			user =UserDetails.objects.get(email=email,username=username)
 			messages.success(request, 'registration successful')
-			email = {"recipient_email":email,
+			email = {"recipient_email": user.email,
 					 "message": f'{username}Click the link to verify your account: '}
-			send_mail(**email)
+			send_email(**email)
 			return redirect('/myapp/login/')
 		else:
 			messages.error(request, 'Registration failed')
@@ -62,19 +62,20 @@ def registration_user(request):
 	form = UserCreateForm()
 	context_data = {
 		'usercreateform': form,
+		'user': UserDetails,
 	}
 
 	return render(request, "registration.html", context_data)
 
-# def send_email(**kwargs):
-# 	email_from = settings.EMAIL_HOST_USER
-# 	subject = "Appointment"
-# 	message = kwargs.get('message')
-# 	recipient_list = (kwargs.get('recipient_email'),)
-#
-# 	if not subject or not message or not email_from or not recipient_list:
-# 		raise Exception("You have not entered subject or message")
-# 	send_mail(subject, message, email_from, recipient_list)
+def send_email(**kwargs):
+	email_from = settings.EMAIL_HOST_USER
+	subject = "registration"
+	message = kwargs.get('message')
+	recipient_list = (kwargs.get('recipient_email'),)
+
+	if not subject or not message or not email_from or not recipient_list:
+		raise Exception("You have not entered subject or message")
+	send_mail(subject, message, email_from, recipient_list)
 
 
 
@@ -160,13 +161,25 @@ def logout_user(request):
 @login_required
 @allowed_users(allowed_roles=['admin'])
 def dashboard(request):
-		return render(request, "dashboard.html")
+	my_user = request.user
+	if request.user.is_authenticated:
+		doctor = Doctor.objects.all()
+		users = UserDetails.objects.all()
+		appoint=appointment.objects.all()
+
+		context = {
+			"Doctor": doctor,
+			"myusers": users,
+			"appointment": appoint,
+			"my_user": my_user,
+		}
+		return render(request, "dashboard.html", context)
 @login_required
 @allowed_users(allowed_roles=['doctor'])
-def index(request):
+def home(request):
 	return render(request,'home.html')
 @login_required
-def appointment(request):
+def Appointment(request):
 	if request.method == 'POST':
 		form = PatientForm(request.POST)
 		if form.is_valid():
