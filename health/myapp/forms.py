@@ -7,7 +7,7 @@ from werkzeug.routing import ValidationError
 
 class UserCreateForm(UserCreationForm):
 	class Meta:
-		fields = ['username', 'first_name', 'last_name', 'second_name', 'email', 'password1', 'password2', 'role']
+		fields = ['username', 'first_name', 'last_name', 'second_name', 'email', 'password1', 'password2', 'group']
 		model = UserDetails
 
 class PatientForm(forms.ModelForm):

@@ -1,7 +1,7 @@
 import math
 import random
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.mail import send_mail
@@ -49,8 +49,12 @@ def registration_user(request):
 		if form.is_valid():
 			username = form.cleaned_data["username"]
 			email = form.cleaned_data["email"]
+			group = form.cleaned_data['group']
+			User = get_user_model()
+
 			form.save()
 			user =UserDetails.objects.get(email=email,username=username)
+			user.groups.add(group)
 			messages.success(request, 'registration successful')
 			email = {"recipient_email": user.email,
 					 "message": f'{username}Click the link to verify your account: '}

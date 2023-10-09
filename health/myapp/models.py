@@ -1,7 +1,7 @@
 import math
 import random
 import uuid
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User,Group
 from django.db import models
 
 class BaseModel(models.Model):
@@ -19,7 +19,8 @@ class BaseModel(models.Model):
 
 class UserDetails(User):
 	second_name = models.CharField(max_length=20)
-	role=models.CharField(max_length=20)
+	# group =models.Ch(queryset=Group.objects.all(), required=True, label='Group')
+	group=models.CharField(max_length=20)
 
 	def __str__(self):
 		return self.username
