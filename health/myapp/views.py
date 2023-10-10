@@ -10,55 +10,35 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import HttpResponse, render, redirect
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
-from django_otp.plugins.otp_email.models import EmailDevice
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User,Group
-from .forms import UserCreateForm,PatientForm
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode
+from .forms import *
 from .models import *
 from .decorator import allowed_users
+from .tokens import account_activation_token
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
 
-# admin_group, created = Group.objects.get_or_create(name='admin')
-# doctor_group, created = Group.objects.get_or_create(name='doctor')
-# patient_group, created = Group.objects.get_or_create(name='patient')
-#
-# from django.contrib.auth.models import User
-#
-# user_admin.groups.add(admin_group)
-# user_doctor.groups.add(doctor_group)
-# user_patient.groups.add(patient_group)
-@csrf_exempt
-def otp_provider():
-	corpus = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	generate_OTP = ""
-	size = 7
-	length = len(corpus)
-	for i in range(size):
-		generate_OTP += corpus[math.floor(random.random() * length)]
-	return generate_OTP
-	return generated_otp
-
-
-
-
-
+User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 @csrf_exempt
 def registration_user(request):
 	if request.method == 'POST':
 		form = UserCreateForm(request.POST)
 
 		if form.is_valid():
-			username = form.cleaned_data["username"]
-			email = form.cleaned_data["email"]
-			group = form.cleaned_data['group']
-			User = get_user_model()
-
+			user = form.save(commit=False)
+			user.is_active = False
 			form.save()
-			user =UserDetails.objects.get(email=email,username=username)
-			user.groups.add(group)
-			messages.success(request, 'registration successful')
-			email = {"recipient_email": user.email,
-					 "message": f'{username}Click the link to verify your account: '}
-			send_email(**email)
+			subject = "Activate your account"
+			message = render_to_string('verificationemail.html', {
+				'user': user,
+				'domain': get_current_site(request).domain,
+				'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+				'token': account_activation_token.make_token(user),
+			})
+			user.email_user(subject, message)
 			return redirect('/myapp/login/')
 		else:
 			messages.error(request, 'Registration failed')
@@ -67,10 +47,24 @@ def registration_user(request):
 	context_data = {
 		'usercreateform': form,
 		'user': UserDetails,
+		'user': get_user_model(),
 	}
 
 	return render(request, "registration.html", context_data)
 
+def activate_account(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = get_user_model().objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        return redirect('activation_success')  # Redirect to a success page
+    else:
+        return redirect('activation_failure')
 def send_email(**kwargs):
 	email_from = settings.EMAIL_HOST_USER
 	subject = "registration"
@@ -91,9 +85,6 @@ def login_user(request):
 		username = request.POST.get('username')
 		password = request.POST.get('password')
 		form = AuthenticationForm(data=request.POST)
-		# if (username == "") or (password == ""):
-		# 	messages.error(request, 'Missing email or password')
-		# 	redirect('/')
 		user = authenticate(username=username, password=password)
 		print(user)
 		if form.is_valid():
@@ -114,32 +105,6 @@ def login_user(request):
 
 	form = AuthenticationForm()
 	return render(request, "login.html", {"loginform": form})
-
-# def send_email(**kwargs):
-# 	email_from = settings.EMAIL_HOST_USER
-# 	subject = "verification code"
-# 	message = kwargs.get('message')
-# 	recipient_list = (kwargs.get('recipient_email'),)
-#
-# 	if not subject or not message or not email_from or not recipient_list:
-# 		raise Exception("You have not entered subject or message")
-# 	send_mail(subject, message, email_from, recipient_list)
-
-@csrf_exempt
-def twofactor(request):
-	user = request.user
-	# otp_model = OtpModel.objects
-	# otp_object = otp_model.filter(user=user).first()
-	# if not otp_object:
-	# 	otp_model.create(user=user, otp=otp_provider())
-	# print(otp_object)
-	# user.save()
-	# email = {"recipient_email": user.email,
-	# 		 "message": f'{user.email}Your Authentication Code is: {otp_object.otp}'}
-	# send_email(**email)
-	# context = {"otp":otp_object.otp}
-	# return render(request, "verification.html", context)
-
 
 
 @csrf_exempt
@@ -162,7 +127,7 @@ def Otp(request):
 def logout_user(request):
 	logout(request)
 	return redirect("/myapp/login/")
-@login_required
+@login_required(login_url='/myapp/login/')
 @allowed_users(allowed_roles=['admin'])
 def dashboard(request):
 	my_user = request.user
@@ -178,11 +143,11 @@ def dashboard(request):
 			"my_user": my_user,
 		}
 		return render(request, "dashboard.html", context)
-@login_required
+@login_required(login_url='/myapp/login/')
 @allowed_users(allowed_roles=['doctor'])
 def home(request):
 	return render(request,'home.html')
-@login_required
+@login_required(login_url='/myapp/login/')
 def Appointment(request):
 	if request.method == 'POST':
 		form = PatientForm(request.POST)
@@ -222,3 +187,28 @@ def send_email(**kwargs):
 	if not subject or not message or not email_from or not recipient_list:
 		raise Exception("You have not entered subject or message")
 	send_mail(subject, message, email_from, recipient_list)
+
+def user(request, user_id):
+	user=UserDetails.objects.get(id=user_id)
+	if user != None:
+		return render(request, "",{'user': user})
+
+def edit_user(request):
+	if request.method== "POST":
+		user=UserDetails.objects.get(id=request.POST.get('id'))
+		if user != None:
+			form = UserProfileForm(request.POST, instance=user)
+			if form.is_valid():
+				form.save()
+				return redirect('edit')  # Redirect to the user's profile or any desired URL after editing
+
+		else:
+			form = UserProfileForm(instance=user)
+
+		return render(request, 'edit_user.html', {'form': form})
+def delete_user(request, user_id):
+	user=UserDetails.objects.get(id=user_id)
+	user.delete()
+	return HttpResponseRedirect('/')
+
+

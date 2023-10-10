@@ -9,9 +9,12 @@ urlpatterns = [
     path('login/', login_user, name='login_user'),
     path('logout/', logout_user, name='logout_user'),
     path('Otp/', Otp, name='Otp'),
-    path('verification/', twofactor, name='twofactor'),
+    # path('verification/', twofactor, name='twofactor'),
     path('dashboard/', dashboard, name='dashboard'),
     path('Appointment/', Appointment, name='Appointment'),
     path('home/', home, name='home'),
+    path('edit/', edit_user, name='edit_user'),
+    # path('registration_success/',registration_success, name='registration_success'),
+    path('activate/<uidb64>/<token>/',activate_account, name='activate_account'),
 
 ]

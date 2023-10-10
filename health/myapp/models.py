@@ -24,6 +24,9 @@ class UserDetails(User):
 
 	def __str__(self):
 		return self.username
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    verification_token = models.CharField(max_length=40, blank=True, null=True)
 
 class OtpModel(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)

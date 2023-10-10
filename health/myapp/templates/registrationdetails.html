@@ -12,7 +12,8 @@
                              <div class="search-bar py-3">
                                 <form  id="formbtn" class="search-form d-flex align-items-center" method="GET" action="">
                                     <input type="text" name="search_staff" placeholder="Search" title="Enter search keyword">
-                                <button type="submit" title="Search"><i class="bi bi-search" id="searchbtn"></i></button>
+                                <button type="submit" title="Search"><i class="bi bi-search" id="searchbtn"></i></button>&nbsp;&nbsp;
+                                    <a class="btn btn-info" href="{% url 'myapp:registration_user' %}">Add User</a>
                               </form>
                             </div>
                         </th>
@@ -23,6 +24,8 @@
                       <th>Second Name</th>
                       <th>Email</th>
                       <th>Role</th>
+                      <th>Edit</th>
+                      <th>Delete</th>
                   </tr>
               </thead>
               <tbody class="table" style="font-size:13px;">
@@ -32,6 +35,12 @@
                       <td>{{users.second_name}}</td>
                       <td>{{users.email}}</td>
                       <td>{{users.role}}</td>
+                       <td>
+                          <a href="edit_user/{{user.id}}"title="Edit Product" class="btn btn-info"><i class="fas fa-pen"></i></a>
+                      </td>
+                       <td>
+                          <a href="delete_user/{{user.id}}"title="Delete Product" class="btn btn-info"><i class="fas fa-trash-alt"></i></a>
+                      </td>
                   </tr>
                {% endfor %}
               </tbody>

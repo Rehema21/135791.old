@@ -4,11 +4,29 @@ from .models import *
 from datetime import date, datetime
 from time import timezone
 from werkzeug.routing import ValidationError
-
+from django.utils.crypto import get_random_string
 class UserCreateForm(UserCreationForm):
+	group = forms.ModelChoiceField(queryset=Group.objects.all(), required=True, label='Group')
 	class Meta:
 		fields = ['username', 'first_name', 'last_name', 'second_name', 'email', 'password1', 'password2', 'group']
 		model = UserDetails
+
+	def save(self, commit=True):
+		user = super().save(commit=False)
+		user.is_active = False  # User is not active until they verify their email
+		user.save()
+
+		# Generate a verification token
+		verification_token = get_random_string(length=40)
+		user.profile.verification_token = verification_token
+		user.profile.save()
+
+		return user
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email',]
 
 class PatientForm(forms.ModelForm):
 

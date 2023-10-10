@@ -25,6 +25,8 @@
                       <th>Doctor</th>
                       <th>Date</th>
                       <th>Time</th>
+                      <th>Edit</th>
+                      <th>Delete</th>
                   </tr>
               </thead>
               <tbody class="table" style="font-size:13px;">
@@ -36,6 +38,12 @@
                       <td>{{appoint.doctor}}</td>
                       <td>{{appoint.dateofappointment}}</td>
                       <td>{{appoint.timeofappointment}}</td>
+                      <td>
+                          <a href="appoint/{{appoint.id}}"title="Edit Product" class="btn btn-info"><i class="fas fa-pen"></i></a>
+                      </td>
+                       <td>
+                          <a href="appoint/{{appoint.id}}"title="Delete Product" class="btn btn-info"><i class="fas fa-trash-alt"></i></a>
+                      </td>
                   </tr>
                {% endfor %}
               </tbody>
