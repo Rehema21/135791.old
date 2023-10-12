@@ -19,7 +19,6 @@ class BaseModel(models.Model):
 
 class UserDetails(User):
 	second_name = models.CharField(max_length=20)
-	# group =models.Ch(queryset=Group.objects.all(), required=True, label='Group')
 	group=models.CharField(max_length=20)
 
 	def __str__(self):
@@ -59,3 +58,10 @@ class appointment(BaseModel):
 	def __str__(self):
 		return str(self.phone_number + self.id_number)
 
+class Medication(BaseModel):
+	patient= models.ForeignKey(UserDetails, on_delete=models.CASCADE)
+	date_of_visit= models.DateField(null=True)
+	diagnosis= models.TextField(max_length=1000)
+	medication=models.TextField(max_length=600)
+	def __str__(self):
+		return str(self.date_of_visit + self.diagnosis)

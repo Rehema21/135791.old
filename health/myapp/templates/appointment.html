@@ -30,8 +30,8 @@
               <div class="col-md-12">
               <div class="card-body p-md-5 text-black">
                <center><h4 class="mb-5 text-uppercase text-info">Appointment form</h4></center>
-                <h2>Appointment System</h2>
-                <form action="{% url 'myapp:appointment' %}" method="POST">
+
+                <form action="{% url 'myapp:Appointment' %}" method="POST">
                             {% csrf_token %}
                    <div class="row d-flex d-inline-block">
                            {% for field in my_form %}

@@ -8,13 +8,12 @@ urlpatterns = [
     path('register/', registration_user, name="registration_user"),
     path('login/', login_user, name='login_user'),
     path('logout/', logout_user, name='logout_user'),
-    path('Otp/', Otp, name='Otp'),
-    # path('verification/', twofactor, name='twofactor'),
+    path('medication/', medication, name='medication'),
     path('dashboard/', dashboard, name='dashboard'),
     path('Appointment/', Appointment, name='Appointment'),
     path('home/', home, name='home'),
-    path('edit/', edit_user, name='edit_user'),
-    # path('registration_success/',registration_success, name='registration_success'),
+    path('edit/<int:user_id>/', edit_user, name='edit_user'),
+    path('delete/<int:user_id>/', delete_user, name='delete_user'),
     path('activate/<uidb64>/<token>/',activate_account, name='activate_account'),
 
 ]

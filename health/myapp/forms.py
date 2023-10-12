@@ -65,3 +65,8 @@ class PatientForm(forms.ModelForm):
 			if dateofvisit < datetime.date.today():
 				raise ValidationError("Date cannot be in the past")
 			return date
+
+class MedicationForm(forms.ModelForm):
+	class Meta:
+		fields = ['patient', 'date_of_visit', 'diagnosis', 'medication']
+		model = Medication

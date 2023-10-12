@@ -21,7 +21,7 @@
     <!-- Layout styles -->
     <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
     <!-- End layout styles -->
-    <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" />
+<!--    <link rel="shortcut icon" href="{% static 'assets/images/favicon.png' %}" />-->
   </head>
   <body>
     <div class="container-scroller">
@@ -191,46 +191,12 @@
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="pages/icons/mdi.html">
+              <a class="nav-link" href="{% url 'myapp:registration_user' %}">
                 <span class="icon-bg"><i class="mdi mdi-contacts menu-icon"></i></span>
-                <span class="menu-title">Icons</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="pages/forms/basic_elements.html">
-                <span class="icon-bg"><i class="mdi mdi-format-list-bulleted menu-icon"></i></span>
-                <span class="menu-title">Forms</span>
-
+                <span class="menu-title">Registration</span>
               </a>
             </li>
 
-<!--             <li class="nav-item">-->
-<!--              <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">-->
-<!--                <span class="icon-bg"><i class="mdi mdi-lock menu-icon"></i></span>-->
-<!--                <span class="menu-title">Forms</span>-->
-<!--                <i class="menu-arrow"></i>-->
-<!--              </a>-->
-<!--              <div class="collapse" id="">-->
-<!--                <ul class="nav flex-column sub-menu">-->
-<!--                  <li class="nav-item"> <a class="nav-link" href="{% url 'myapp:login_user'%}"> Appointments </a></li>-->
-<!--                  <li class="nav-item"> <a class="nav-link" href="{% url 'myapp:registration_user'%}"> Doctors </a></li>-->
-<!--                  <li class="nav-item"> <a class="nav-link" href="{% url 'myapp:registration_user'%}"> Users </a></li>-->
-<!--                </ul>-->
-<!--              </div>-->
-<!--            </li>-->
-
-            <li class="nav-item">
-              <a class="nav-link" href="pages/charts/chartjs.html">
-                <span class="icon-bg"><i class="mdi mdi-chart-bar menu-icon"></i></span>
-                <span class="menu-title">Charts</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="pages/tables/basic-table.html">
-                <span class="icon-bg"><i class="mdi mdi-table-large menu-icon"></i></span>
-                <span class="menu-title">Tables</span>
-              </a>
-            </li>
             <li class="nav-item">
               <a class="nav-link" data-toggle="collapse" href="#auth" aria-expanded="false" aria-controls="auth">
                 <span class="icon-bg"><i class="mdi mdi-lock menu-icon"></i></span>
@@ -246,35 +212,9 @@
             </li>
 
             <li class="nav-item sidebar-user-actions">
-<!--              <div class="user-details">-->
-<!--                <div class="d-flex justify-content-between align-items-center">-->
-<!--                  <div>-->
-<!--                    <div class="d-flex align-items-center">-->
-<!--                      <div class="sidebar-profile-img">-->
-<!--                        <img src="assets/images/faces/face28.png" alt="image">-->
-<!--                      </div>-->
-<!--                      <div class="sidebar-profile-text">-->
-<!--                        <p class="mb-1">Henry Klein</p>-->
-<!--                      </div>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                  <div class="badge badge-danger">3</div>-->
-<!--                </div>-->
-<!--              </div>-->
+
             </li>
-<!--            <li class="nav-item sidebar-user-actions">-->
-<!--              <div class="sidebar-user-menu">-->
-<!--                <a href="#" class="nav-link"><i class="mdi mdi-settings menu-icon"></i>-->
-<!--                  <span class="menu-title">Settings</span>-->
-<!--                </a>-->
-<!--              </div>-->
-<!--            </li>-->
-<!--            <li class="nav-item sidebar-user-actions">-->
-<!--              <div class="sidebar-user-menu">-->
-<!--                <a href="#" class="nav-link"><i class="mdi mdi-speedometer menu-icon"></i>-->
-<!--                  <span class="menu-title">Take Tour</span></a>-->
-<!--              </div>-->
-<!--            </li>-->
+
             <li class="nav-item sidebar-user-actions">
               <div class="sidebar-user-menu">
                 <a href="{% url 'myapp:logout_user' %}" class="nav-link"><i class="mdi mdi-logout menu-icon"></i>
@@ -309,8 +249,7 @@
           <footer class="footer">
             <div class="footer-inner-wraper">
               <div class="d-sm-flex justify-content-center justify-content-sm-between">
-                <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Copyright © bootstrapdash.com 2020</span>
-                <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center"> Free <a href="https://www.bootstrapdash.com/" target="_blank">Bootstrap dashboard templates</a> from Bootstrapdash.com</span>
+                <span class="text-muted d-block text-center text-sm-left d-sm-inline-block">Copyright ©  2023</span>
               </div>
             </div>
           </footer>

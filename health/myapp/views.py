@@ -7,7 +7,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.core.mail import send_mail
 
 from django.http import HttpResponseRedirect
-from django.shortcuts import HttpResponse, render, redirect
+from django.shortcuts import HttpResponse, render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
@@ -45,8 +45,8 @@ def registration_user(request):
 
 	form = UserCreateForm()
 	context_data = {
-		'usercreateform': form,
-		'user': UserDetails,
+		' usercreateform': form,
+		' user': UserDetails,
 		'user': get_user_model(),
 	}
 
@@ -98,35 +98,32 @@ def login_user(request):
 				return HttpResponseRedirect('/myapp/home/')
 			elif user.groups.filter(name__iexact="patient").exists():
 				login(request, user)
-				return HttpResponseRedirect('/myapp/appointment/')
+				return HttpResponseRedirect('/myapp/Appointment/')
 			else:
 				login(request, user)
 				return HttpResponseRedirect('/myapp/login/')
 
 	form = AuthenticationForm()
 	return render(request, "login.html", {"loginform": form})
-
-
-@csrf_exempt
-@login_required(login_url='/myapp/login/')
-def Otp(request):
-	request_method = request.method
-	post_request_data = request.POST
-	get_request_data = post_request_data.get
-	otp_model = OtpModel.objects
-	if request_method == "POST":
-		otp = get_request_data('otp')
-		verify_otp = otp_model(otp=otp)
-		if verify_otp.exists():
-			login(request, verify_otp[0].user)
-			return redirect('/home/')
-		messages.error(request, "Invalid otp!")
-		return redirect('/myapp/otp/')
-	return render(request, 'verification.html')
-
 def logout_user(request):
 	logout(request)
 	return redirect("/myapp/login/")
+def medication(request):
+	if request.method== "POST":
+		form=MedicationForm(request.POST)
+		if form.is_valid():
+			patient = form.cleaned_data["patient"]
+			form.save()
+			patient=UserDetails.objects.get(id=patient.id)
+	form = MedicationForm()
+	context_data = {
+		'myform': form,
+		'patient': UserDetails,
+	}
+	return render(request, "medication.html", context_data)
+
+
+
 @login_required(login_url='/myapp/login/')
 @allowed_users(allowed_roles=['admin'])
 def dashboard(request):
@@ -134,13 +131,20 @@ def dashboard(request):
 	if request.user.is_authenticated:
 		doctor = Doctor.objects.all()
 		users = UserDetails.objects.all()
-		appoint=appointment.objects.all()
+		appoint = appointment.objects.all()
+
+		admin_count = UserDetails.objects.filter(group='admin').count()
+		doctor_count = UserDetails.objects.filter(group='doctor').count()
+		patient_count = UserDetails.objects.filter(group='patient').count()
 
 		context = {
 			"Doctor": doctor,
 			"myusers": users,
 			"appointment": appoint,
 			"my_user": my_user,
+			'admin_count': admin_count,
+			'doctor_count': doctor_count,
+			'patient_count': patient_count
 		}
 		return render(request, "dashboard.html", context)
 @login_required(login_url='/myapp/login/')
@@ -193,22 +197,24 @@ def user(request, user_id):
 	if user != None:
 		return render(request, "",{'user': user})
 
-def edit_user(request):
+def edit_user(request, user_id):
+	user = get_object_or_404(User, id=user_id)
 	if request.method== "POST":
-		user=UserDetails.objects.get(id=request.POST.get('id'))
+		# user=UserDetails.objects.get(id=request.POST.get('id'))
 		if user != None:
 			form = UserProfileForm(request.POST, instance=user)
 			if form.is_valid():
 				form.save()
-				return redirect('edit')  # Redirect to the user's profile or any desired URL after editing
+				return HttpResponseRedirect('/myapp/edit/<int:user_id>/')
 
 		else:
 			form = UserProfileForm(instance=user)
 
 		return render(request, 'edit_user.html', {'form': form})
 def delete_user(request, user_id):
-	user=UserDetails.objects.get(id=user_id)
+	user = get_object_or_404(User, id=user_id)
+	# user=UserDetails.objects.get(id=user_id)
 	user.delete()
-	return HttpResponseRedirect('/')
+	return HttpResponseRedirect('/myapp/delete/<int:user_id>/')
 
 
