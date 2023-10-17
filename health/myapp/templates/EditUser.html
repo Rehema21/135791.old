@@ -30,12 +30,12 @@
                  </div>
                {% endif %}
               </div>
-              <center><h2 class="card-title text-info">REGISTER</h2></center>
+              <center><h2 class="card-title text-info">Edit</h2></center>
               <div class="container d-flex flex-column col-md-12 ">
-                     <form action="{% url 'myapp:edit_user' %}" method="POST">
+                     <form action="{% url 'myapp:edit_user' user_id=user.id %}" method="POST">
                         {% csrf_token %}
                          <div class="row d-flex d-inline-block">
-                        {% for field in usercreateform %}
+                        {% for field in form %}
                              {% if field.name == "username" %}
                              <div class="col-md-6 form-group">
                                 <label class="text-dark"> {{field.label}}<br></label>

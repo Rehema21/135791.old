@@ -13,10 +13,10 @@ class UserCreateForm(UserCreationForm):
 
 	def save(self, commit=True):
 		user = super().save(commit=False)
-		user.is_active = False  # User is not active until they verify their email
+		user.is_active = False
 		user.save()
 
-		# Generate a verification token
+
 		verification_token = get_random_string(length=40)
 		user.profile.verification_token = verification_token
 		user.profile.save()
@@ -40,12 +40,12 @@ class PatientForm(forms.ModelForm):
 		model = appointment
 
 		fields = ['first_name', 'last_name', 'second_name', "id_number", 'email', 'phone_number',
-				  'doctor', 'dateofappointment','timeofappointment']
+				  'doctor', 'appointment_date','appointment_time']
 
 		labels = {
 			'first_name': 'First Name', 'second_name': 'Second Name', 'last_name': 'Last Name',
 			'id_number': 'ID Number', 'phone_number': 'Phone Number', 'doctor': 'Doctor',
-			'dateofappointment': 'date of appointment', 'timeofappointment': 'time of appointment',
+			'appointment_date': 'Date of Appointment', 'appointment_time': 'Time of Appointment',
 
 		}
 		widgets = {
@@ -56,8 +56,8 @@ class PatientForm(forms.ModelForm):
 			'email': forms.EmailInput(attrs={'': 'email'}),
 			'phone_number': forms.NumberInput(attrs={'': 'phone number'}),
 			'doctor': forms.Select(attrs={'': 'doctor'}),
-			'dateofappointment': forms.DateInput(format=('%d/%b/%Y'), attrs={'type': 'date'}),
-			'timeofappointment': forms.TimeInput(attrs={'type': 'time'}),
+			'appointment_date': forms.DateInput(format=('%d/%b/%Y'), attrs={'type': 'date'}),
+			'appointment_time': forms.TimeInput(attrs={'type': 'time'}),
 		}
 
 		def clean_date(self):
@@ -70,3 +70,14 @@ class MedicationForm(forms.ModelForm):
 	class Meta:
 		fields = ['patient', 'date_of_visit', 'diagnosis', 'medication']
 		model = Medication
+
+class MedicalRecordForm(forms.ModelForm):
+	class Meta:
+		fields = ['first_name', 'second_name','last_name','dateofbirth', 'gender', 'contact', 'email', 'treatment', 'medication', 'dateofvisit']
+		model = Medicalrecord
+
+	widgets = {
+		'dateofbirth': forms.DateInput(format=('%d/%b/%Y'), attrs={'type': 'date'}),
+		'dateofvisit': forms.DateInput(format=('%d/%b/%Y'), attrs={'type': 'date'}),
+
+	}

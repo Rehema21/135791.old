@@ -139,3 +139,8 @@ EMAIL_HOST_USER = 'mrema293@gmail.com'
 DEFAULT_FROM_EMAIL = 'mrema293@gmail.com'
 EMAIL_HOST_PASSWORD = 'lblx crkv qarp aszx'
 
+# settings.py
+
+GOOGLE_CALENDAR_CLIENT_ID = '105559889533955239610'
+GOOGLE_CALENDAR_CLIENT_SECRET = '695b58036fb87cc044ac2c867bdcc1644bcdda56'
+GOOGLE_CALENDAR_REDIRECT_URI = 'https://accounts.google.com/o/oauth2/auth'  # e.g., http://localhost:8000/callback/

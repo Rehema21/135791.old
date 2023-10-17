@@ -58,7 +58,7 @@
                                     {{field|add_class:'form-control border border-info'}}<br>
                                  </div>
                              {% elif field.name == "email" %}
-                                  <div class="col-md-6 form-group">
+                                  <div class="col-md-12 form-group">
                                     <label class="text-dark"> {{field.label}}<br></label>
                                     {{field|add_class:'form-control border border-info'}}<br>
                                  </div>
@@ -83,8 +83,8 @@
                                         {{field|add_class:'form-control border border-info'}}<br>
                                     </div>
 
-                                         {% endif %}
-                                    {% endfor %}
+                             {% endif %}
+                             {% endfor %}
                                     {% for error in field.errors %}
                                     <span class="help-block">{{ error }}</span>
                                     {% endfor %}

@@ -19,7 +19,7 @@ class BaseModel(models.Model):
 
 class UserDetails(User):
 	second_name = models.CharField(max_length=20)
-	group=models.CharField(max_length=20)
+	group = models.CharField(max_length=20)
 
 	def __str__(self):
 		return self.username
@@ -41,6 +41,7 @@ class Doctor(BaseModel):
 	phone_number = models.IntegerField(default=0)
 	email = models.EmailField(max_length=50)
 	speciality = models.CharField(max_length=20)
+	google_credentials = models.JSONField(null=True, blank=True)
 
 	def __str__(self):
 		return "%s  %s" % (self.first_name, self.second_name)
@@ -52,16 +53,34 @@ class appointment(BaseModel):
 	phone_number = models.IntegerField(default=0)
 	email = models.EmailField(max_length=50)
 	doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-	dateofappointment = models.DateField(null=True)
-	timeofappointment = models.TimeField(null=True)
+	appointment_date = models.DateField(null=True)
+	appointment_time = models.TimeField(null=True)
 
 	def __str__(self):
 		return str(self.phone_number + self.id_number)
 
 class Medication(BaseModel):
-	patient= models.ForeignKey(UserDetails, on_delete=models.CASCADE)
-	date_of_visit= models.DateField(null=True)
-	diagnosis= models.TextField(max_length=1000)
-	medication=models.TextField(max_length=600)
+	patient = models.OneToOneField(UserDetails, on_delete=models.CASCADE)
+	date_of_visit = models.DateField(null=True)
+	diagnosis = models.TextField(max_length=1000)
+	medication = models.TextField(max_length=600)
 	def __str__(self):
 		return str(self.date_of_visit + self.diagnosis)
+
+class Medicalrecord(BaseModel):
+	GENDER = [
+		("F", "Female"),
+		("M", "Male"),
+	]
+	# patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medical_records')
+	first_name = models.CharField(max_length=20)
+	second_name = models.CharField(max_length=20)
+	last_name = models.CharField(max_length=20)
+	dateofbirth = models.DateField(null=True)
+	gender = models.CharField(max_length=20, choices=GENDER)
+	contact = models.IntegerField(default=0)
+	email = models.EmailField(max_length=20)
+	treatment = models.TextField(max_length=20)
+	medication = models.TextField(max_length=20)
+	dateofvisit = models.DateField(null=True)
+
