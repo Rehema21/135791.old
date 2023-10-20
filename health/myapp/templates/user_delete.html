@@ -1,0 +1,13 @@
+<head>
+    <title>Confirm Deletion</title>
+</head>
+<body>
+    <h1>Confirm Deletion</h1>
+    <p>Are you sure you want to delete the user{{users.second_name}}?</p>
+    <form method="post" href="{% url 'myapp:delete_user' user.id%}">
+        {% csrf_token %}
+        <button type="submit">Confirm Delete</button>
+    </form>
+    <a href="{% url 'myapp:dashboard' %}">Cancel</a>
+</body>
+</html>

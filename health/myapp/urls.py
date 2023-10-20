@@ -15,6 +15,7 @@ urlpatterns = [
     path('home/', home, name='home'),
     path('edit/<int:user_id>/', edit_user, name='edit_user'),
     path('delete/<int:user_id>/', delete_user, name='delete_user'),
-    path('activate/<uidb64>/<token>/',activate_account, name='activate_account'),
+    path('activate/<uidb64>/<token>/', activate_account, name='activate_account'),
     path('view_medical_record/', view_medical_record, name='view_medical_record'),
+    path('update_appointment/<str:pk>/', update_appointment, name='update_appointment'),
 ]

@@ -36,10 +36,10 @@
                       <td>{{users.email}}</td>
                       <td>{{users.group}}</td>
                        <td>
-                          <a href="{% url 'myapp:edit_user' user.id %}" title="Edit Product" class="btn btn-info"><i class="fas fa-pen"></i></a>
+                          <a href="{% url 'myapp:edit_user' users.id %}" title="Edit Product" class="btn btn-info"><i class="fas fa-pen"></i></a>
                       </td>
                        <td>
-                          <a href="{% url 'myapp:delete_user' user.id %}" title="Delete Product" class="btn btn-info"><i class="fas fa-trash-alt"></i></a>
+                          <a href="{% url 'myapp:delete_user' users.id %}" title="Delete Product" class="btn btn-info"><i class="fas fa-trash-alt"></i></a>
                       </td>
                   </tr>
                {% endfor %}

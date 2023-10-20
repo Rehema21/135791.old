@@ -135,16 +135,16 @@ def dashboard(request):
 		doctor_count = UserDetails.objects.filter(group='doctor').count()
 		patient_count = UserDetails.objects.filter(group='patient').count()
 
-		context = {
-			"Doctor": doctor,
-			"myusers": users,
-			"appointment": appoint,
-			"my_user": my_user,
-			'admin_count': admin_count,
-			'doctor_count': doctor_count,
-			'patient_count': patient_count
-		}
-		return render(request, "dashboard.html", context)
+	context = {
+		"Doctor": doctor,
+		"myusers": users,
+		"appointment": appoint,
+		"my_user": my_user,
+		'admin_count': admin_count,
+		'doctor_count': doctor_count,
+		'patient_count': patient_count
+	}
+	return render(request, "dashboard.html", context)
 @login_required(login_url='/myapp/login/')
 @allowed_users(allowed_roles=['doctor'])
 def home(request):
@@ -222,25 +222,30 @@ def user(request, user_id):
 		return render(request, "", {'user': user})
 
 def edit_user(request, user_id):
-    user = get_object_or_404(User, id=user_id)
 
-    if request.method == "POST":
-        form = UserProfileForm(request.POST, instance=user)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.save()
-            form.save()
-            return redirect('/myapp/dashboard/')
-    else:
-        form = UserProfileForm(instance=user)
+	if request.user.id != user_id:
+		return redirect('/myapp/dashboard/')
 
-    return render(request, 'EditUser.html', {'form': form, 'user_id': user_id})
+	user = get_object_or_404(User, id=user_id)
+
+	if request.method == "POST":
+		form = UserProfileForm(request.POST, instance=user)
+		if form.is_valid():
+			user = form.save(commit=False)
+			user.save()
+			form.save()
+		else:
+			form = UserProfileForm(instance=user)
+
+		return render(request, 'EditUser.html', {'form': form, 'user_id': user_id})
 def delete_user(request, user_id):
 	user = get_object_or_404(User, id=user_id)
 	if request.method == 'POST':
 		user.delete()
+		# id= data.get('id')
+		# user=user.objects.get(id=id)
 		return redirect('/myapp/dashboard/')
-	return render(request,'dashboard.html', {'user': user})
+	return render(request, 'user_delete.html', {'user': user})
 
 # @login_required(login_url='/myapp/login/')
 # @allowed_users(allowed_roles=['patient'])
@@ -256,3 +261,17 @@ def view_medical_record(request):
 	patient_group = Group.objects.get(name='Patient')
 	patients = User.objects.filter(groups__in=[patient_group])
 	return render(request, view_medical_record.html, {'medical_record': medical_record})
+
+
+def update_appointment(request, pk):
+	appoint = get_object_or_404(appointment, id=pk)
+	# appoint = appointment.objects.get(id=pk)
+	form = PatientForm(instance=appoint)
+
+	if request.method == 'POST':
+		form = PatientForm(request.POST, instance=appoint)
+		if form.is_valid():
+			form.save()
+			return redirect('/')
+	context = {'my_form': form, 'pk':pk}
+	return render(request, 'appointment.html', context)
