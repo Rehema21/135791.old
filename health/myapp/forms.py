@@ -71,13 +71,18 @@ class MedicationForm(forms.ModelForm):
 		fields = ['patient', 'date_of_visit', 'diagnosis', 'medication']
 		model = Medication
 
+		widgets = {
+			'date_of_visit': forms.DateInput(format=('%d/%b/%Y'), attrs={'type': 'date'}),
+		}
+
 class MedicalRecordForm(forms.ModelForm):
 	class Meta:
-		fields = ['first_name', 'second_name','last_name','dateofbirth', 'gender', 'contact', 'email', 'treatment', 'medication', 'dateofvisit']
+		fields = ['patient','dateofbirth', 'gender', 'contact', 'email', 'treatment', 'medication', 'dateofvisit']
 		model = Medicalrecord
 
-	widgets = {
+		widgets = {
 		'dateofbirth': forms.DateInput(format=('%d/%b/%Y'), attrs={'type': 'date'}),
 		'dateofvisit': forms.DateInput(format=('%d/%b/%Y'), attrs={'type': 'date'}),
+		'email': forms.EmailInput(attrs={'': 'email'}),
 
-	}
+	    }

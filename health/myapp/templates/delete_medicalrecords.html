@@ -1,10 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <title>Confirm Deletion</title>
 </head>
 <body>
-$END$
+    <h1>Confirm Deletion</h1>
+    <p>Are you sure you want to delete ?</p>
+    <form method="post" href="{% url 'myapp:delete_medicalrecords' user.id%}">
+        {% csrf_token %}
+        <button type="submit">Confirm Delete</button>
+    </form>
+    <a href="{% url 'myapp:patient_page' %}">Cancel</a>
 </body>
 </html>

@@ -13,7 +13,7 @@
                                 <form  id="formbtn" class="search-form d-flex align-items-center" method="GET" action="">
                                     <input type="text" name="search_staff" placeholder="Search" title="Enter search keyword">
                                     <button type="submit" title="Search"><i class="bi bi-search" id="searchbtn"></i></button>
-                                    <a class="btn btn-info" href="{%  url 'myapp:Appointment' %}">Add</a>
+                                    <a class="btn btn-info" href="">Add</a>
                               </form>
                             </div>
                         </th>
@@ -23,7 +23,7 @@
                       <th>FirstName</th>
                       <th>Last Name</th>
                       <th>Email</th>
-                      <th>Doctor</th>
+
                       <th>Date</th>
                       <th>Time</th>
                       <th>Edit</th>
@@ -36,14 +36,14 @@
                       <td>{{appoint.first_name}}</td>
                       <td>{{appoint.second_name}}</td>
                       <td>{{appoint.email}}</td>
-                      <td>{{appoint.doctor}}</td>
-                      <td>{{appoint.dateofappointment}}</td>
-                      <td>{{appoint.timeofappointment}}</td>
+
+                      <td>{{appoint.appointment_date}}</td>
+                      <td>{{appoint.appointment_time}}</td>
                       <td>
-                          <a href="{% url 'myapp:update_appointment' appoint.id %}" title="Edit Product" class="btn btn-info"><i class="fas fa-pen"></i></a>
+                          <a href="{% url 'myapp:update_appointment' appoint.id %}" title="Edit Appointment" class="btn btn-info"><i class="fas fa-pen"></i></a>
                       </td>
                        <td>
-                          <a href="appoint/{{appoint.id}}" title="Delete Product" class="btn btn-info"><i class="fas fa-trash-alt"></i></a>
+                          <a href="{% url 'myapp:delete_appointment' appoint.id %}" title="Delete Appointment" class="btn btn-info"><i class="fas fa-trash-alt"></i></a>
                       </td>
                   </tr>
                {% endfor %}

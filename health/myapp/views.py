@@ -60,7 +60,7 @@ def activate_account(request, uidb64, token):
     if user and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
-        return redirect('activation_success')  # Redirect to a success page
+        return redirect('activation_success')
     else:
         return redirect('activation_failure')
 def send_email(**kwargs):
@@ -96,7 +96,7 @@ def login_user(request):
 				return HttpResponseRedirect('/myapp/home/')
 			elif user.groups.filter(name__iexact="patient").exists():
 				login(request, user)
-				return HttpResponseRedirect('/myapp/Appointment/')
+				return HttpResponseRedirect('/myapp/patient_page/')
 			else:
 				login(request, user)
 				return HttpResponseRedirect('/myapp/login/')
@@ -114,6 +114,7 @@ def medication(request):
 			form.save()
 			patient = UserDetails.objects.get(id=patient.id)
 	form = MedicationForm()
+	messages.success(request, f"You have succesfully added medication of ")
 	context_data = {
 		'myform': form,
 		'patient': UserDetails,
@@ -173,8 +174,8 @@ def home(request):
 #     print('Event created: %s' % (event.get('htmlLink')))
 
 
-@login_required(login_url='/myapp/login/')
-@allowed_users(allowed_roles=['patient'])
+# @login_required(login_url='/myapp/login/')
+# @allowed_users(allowed_roles=['patient'])
 def Appointment(request):
 	if request.method == 'POST':
 		form = PatientForm(request.POST)
@@ -205,6 +206,11 @@ def Appointment(request):
 		'doctor': Doctor,
 	}
 	return render(request, "appointment.html", context_data)
+
+def doctor_appointment(request):
+
+
+	return render(request, 'doctor_appointment.html', )
 
 def send_email(**kwargs):
 	email_from = settings.EMAIL_HOST_USER
@@ -255,6 +261,9 @@ def medical_record(request):
 		if form.is_valid():
 			form.save()
 			# return HttpResponseRedirect()
+			messages.success(request, f"You have succesfully recorded")
+		else:
+			print(form.errors)
 	form = MedicalRecordForm()
 	return render(request, 'medical_records.html', {'medform': form})
 def view_medical_record(request):
@@ -262,7 +271,8 @@ def view_medical_record(request):
 	patients = User.objects.filter(groups__in=[patient_group])
 	return render(request, view_medical_record.html, {'medical_record': medical_record})
 
-
+@login_required(login_url='/myapp/login/')
+@allowed_users(allowed_roles=['patient', 'admin'])
 def update_appointment(request, pk):
 	appoint = get_object_or_404(appointment, id=pk)
 	# appoint = appointment.objects.get(id=pk)
@@ -273,5 +283,81 @@ def update_appointment(request, pk):
 		if form.is_valid():
 			form.save()
 			return redirect('/')
-	context = {'my_form': form, 'pk':pk}
+	context = {'my_form': form, 'pk': pk}
 	return render(request, 'appointment.html', context)
+def delete_appointment(request, pk):
+	appoint = get_object_or_404(appointment, id=pk)
+	if request.method == 'POST':
+		appoint.delete()
+		return redirect('/myapp/dashboard/')
+	return render(request, 'delete_appointment.html', {'appoint': appoint})
+
+# def update_doctor(request, pk):
+# 	doctor = get_object_or_404(Doctor, id=pk)
+# 	# appoint = appointment.objects.get(id=pk)
+# 	form = PatientForm(instance=doctor)
+#
+# 	if request.method == 'POST':
+# 		form = PatientForm(request.POST, instance=doctor)
+# 		if form.is_valid():
+# 			form.save()
+# 			return redirect('/')
+# 	context = {'my_form': form, 'pk': pk}
+# 	return render(request, 'appointment.html', context)
+# def delete_doctor(request, pk):
+# 	appoint = get_object_or_404(appointment, id=pk)
+# 	if request.method == 'POST':
+# 		appoint.delete()
+# 		return redirect('/myapp/dashboard/')
+# 	return render(request, 'delete_appointment.html', {'appoint': appoint})
+def patient_page(request):
+	if request.user.is_authenticated:
+		med = Medicalrecord.objects.all()
+		medicate = Medication.objects.all()
+
+	return render(request,'patient_page.html', {'medical': med,'medic':medicate})
+
+
+def edit_medicalrecords(request, pk):
+	medr = get_object_or_404(appointment, id=pk)
+	user = get_object_or_404(User, id=pk)
+
+	if request.method == "POST":
+		form = UserProfileForm(request.POST, instance=medr)
+		if form.is_valid():
+			medr = form.save(commit=False)
+			medr.save()
+			form.save()
+		else:
+			form = UserProfileForm(instance=medr)
+
+		return render(request, 'medical_records.html', {'form': form, 'pk': pk})
+
+def delete_medicalrecords(request, pk):
+	medrecord = get_object_or_404(Medicalrecord, id=pk)
+	if request.method == 'POST':
+		medrecord.delete()
+		return redirect('/myapp/patient_page/')
+	return render(request, 'delete_medicalrecords.html', {'medrecord': medrecord})
+
+def edit_medicationrecords(request, pk):
+	medication = get_object_or_404(Medication, id=pk)
+
+	form = MedicationForm(instance=medication)
+
+	if request.method == 'POST':
+		form = MedicationForm(request.POST, instance=medication)
+		if form.is_valid():
+			# medication = form.save(commit=False)
+			# medication.save()
+			form.save()
+			return redirect('/')
+	context = {'myform': form, 'pk': pk}
+	return render(request, 'medication.html', context)
+
+def delete_medicationrecords(request, pk):
+	medrecord = get_object_or_404(Medicalrecord, id=pk)
+	if request.method == 'POST':
+		medrecord.delete()
+		return redirect('/myapp/patient_page/')
+	return render(request, 'delete_medicalrecords.html', {'medrecord': medrecord})

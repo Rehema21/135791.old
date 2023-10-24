@@ -1,10 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% load static %}
+{% load widget_tweaks %}
+      <div class="card" id="cardc">
+          <table class="table" >
+              <thead class="table-light">
+                       <tr>
+                        <th colspan="6">
+                            <div class="pagetitle">
+                                    <h1>Medical Records</h1>
+                                </div>
+                        </th>
+                        <th colspan="6">
+                             <div class="search-bar py-3">
+                                <form  id="formbtn" class="search-form d-flex align-items-center" method="GET" action="">
+                                    <input type="text" name="search_staff" placeholder="Search" title="Enter search keyword">
+                                    <button type="submit" title="Search"><i class="bi bi-search" id="searchbtn"></i></button>
+
+                              </form>
+                            </div>
+                        </th>
+        <!--                <th>Reason</th>-->
+                    </tr>
+                  <tr>
+                      <th>FirstName</th>
+                      <th>Second Name</th>
+                      <th>DOB</th>
+                      <th>Gender</th>
+                      <th>Medication</th>
+                      <th>Contact</th>
+                      <th>Email</th>
+                      <th>Date of Visit</th>
+                      <th>Edit</th>
+                      <th>Delete</th>
+                  </tr>
+              </thead>
+              <tbody class="table" style="font-size:13px;">
+               {% for med in medical %}
+                  <tr>
+                      <td>{{med.first_name}}</td>
+                      <td>{{med.second_name}}</td>
+                      <td>{{med.dateofbirth}}</td>
+                      <td>{{med.gender}}</td>
+                      <td>{{med.medication}}</td>
+                      <td>{{med.contact}}</td>
+                      <td>{{med.email}}</td>
+                      <td>{{med.dateofvisit}}</td>
+                           <td>
+                          <a href="{% url 'myapp:edit_medicalrecords' med.id %}" title="Edit Product" class="btn btn-info"><i class="fas fa-pen"></i></a>
+                      </td>
+                       <td>
+                          <a href="{% url 'myapp:delete_medicalrecords' med.id %}" title="Delete Product" class="btn btn-info"><i class="fas fa-trash-alt"></i></a>
+                      </td>
+                  </tr>
+               {% endfor %}
+              </tbody>
+          </table>
+      </div>

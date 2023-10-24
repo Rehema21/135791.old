@@ -28,20 +28,21 @@ class UserProfile(models.Model):
     verification_token = models.CharField(max_length=40, blank=True, null=True)
 
 class OtpModel(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     otp = models.CharField(max_length=7)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.otp
-class Doctor(BaseModel):
+class Doctor(models.Model):
 	first_name = models.CharField(max_length=20)
 	second_name = models.CharField(max_length=20)
 	phone_number = models.IntegerField(default=0)
 	email = models.EmailField(max_length=50)
 	speciality = models.CharField(max_length=20)
 	google_credentials = models.JSONField(null=True, blank=True)
+
 
 	def __str__(self):
 		return "%s  %s" % (self.first_name, self.second_name)
@@ -72,14 +73,12 @@ class Medicalrecord(BaseModel):
 		("F", "Female"),
 		("M", "Male"),
 	]
-	# patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='medical_records')
-	first_name = models.CharField(max_length=20)
-	second_name = models.CharField(max_length=20)
-	last_name = models.CharField(max_length=20)
+
+	patient = models.OneToOneField(UserDetails, on_delete=models.CASCADE)
 	dateofbirth = models.DateField(null=True)
 	gender = models.CharField(max_length=20, choices=GENDER)
 	contact = models.IntegerField(default=0)
-	email = models.EmailField(max_length=20)
+	email = models.EmailField(max_length=60)
 	treatment = models.TextField(max_length=20)
 	medication = models.TextField(max_length=20)
 	dateofvisit = models.DateField(null=True)

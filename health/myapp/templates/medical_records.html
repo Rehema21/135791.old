@@ -36,22 +36,12 @@
                         {% csrf_token %}
                          <div class="row d-flex d-inline-block">
                         {% for field in medform %}
-                             {% if field.name == "first_name" %}
+                             {% if field.name == "patient" %}
                              <div class="col-md-6 form-group">
                                 <label class="text-dark"> {{field.label}}<br></label>
                                 {{field|add_class:'form-control border border-info'}}<br>
                              </div>
-                             {% elif field.name == "second_name" %}
-                              <div class="col-md-6 form-group">
-                                <label class="text-dark"> {{field.label}}<br></label>
-                                {{field|add_class:'form-control border border-info'}}<br>
-                             </div>
 
-                             {% elif field.name == "last_name" %}
-                                  <div class="col-md-6 form-group">
-                                    <label class="text-dark"> {{field.label}}<br></label>
-                                    {{field|add_class:'form-control border border-info'}}<br>
-                                 </div>
                              {% elif field.name == "dateofbirth" %}
                                   <div class="col-md-6 form-group">
                                     <label class="text-dark"> {{field.label}}<br></label>

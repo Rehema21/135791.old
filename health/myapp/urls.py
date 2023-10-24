@@ -17,5 +17,14 @@ urlpatterns = [
     path('delete/<int:user_id>/', delete_user, name='delete_user'),
     path('activate/<uidb64>/<token>/', activate_account, name='activate_account'),
     path('view_medical_record/', view_medical_record, name='view_medical_record'),
+    path('delete_appointment/<str:pk>/', delete_appointment, name='delete_appointment'),
+    path('delete_medicalrecords/<str:pk>/', delete_medicalrecords, name='delete_medicalrecords'),
     path('update_appointment/<str:pk>/', update_appointment, name='update_appointment'),
+    path('edit_medicalrecords/<str:pk>/', edit_medicalrecords, name='edit_medicalrecords'),
+    path('doctor_appointment/', doctor_appointment, name='doctor_appointment'),
+    path('edit_medicationrecords/<str:pk>/', edit_medicationrecords, name='edit_medicationrecords'),
+    path('delete_medicationrecords/<str:pk>/', doctor_appointment, name='delete_medicationrecords'),
+    path('patient_page/', patient_page, name='patient_page'),
+
+
 ]

@@ -105,6 +105,9 @@
                      <li><a href="{% url 'myapp:medical_record' %}"><i
                                 class="icon icon-single-04"></i><span class="" onclick="openappointment(event,'appointment')" id="medical">Medical Reports</span></a>
                     </li>
+                    <li><a href="{% url 'myapp:doctor_appointment' %}"><i
+                                class="icon icon-single-04"></i><span class="nav-text" onclick="openappointment(event,'appointment')" id="docappoint">Appointment</span></a>
+                    </li>
                     <li><a href="{% url 'myapp:logout_user' %}"><i
                                 class="icon icon-single-04"></i><span class="">Log Out</span></a>
                     </li>
@@ -129,7 +132,7 @@
                 </div>
 
 
-<!--                <div class="main_content " id="dashboard" >-->
+                <div class="main_content " id="dashboard" >-->
 <!--                    {% include 'doc_dashboard.html' %}-->
 <!--                </div>-->
             Content body end

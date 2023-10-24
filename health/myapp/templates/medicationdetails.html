@@ -1,0 +1,50 @@
+{% load static %}
+{% load widget_tweaks %}
+      <div class="card" id="cardc">
+          <table class="table" >
+              <thead class="table-light">
+                       <tr>
+                        <th colspan="6">
+                            <div class="pagetitle">
+                                    <h1>Medical Records</h1>
+                                </div>
+                        </th>
+                        <th colspan="6">
+                             <div class="search-bar py-3">
+                                <form  id="formbtn" class="search-form d-flex align-items-center" method="GET" action="">
+                                    <input type="text" name="search_staff" placeholder="Search" title="Enter search keyword">
+                                    <button type="submit" title="Search"><i class="bi bi-search" id="searchbtn"></i></button>
+
+                              </form>
+                            </div>
+                        </th>
+        <!--                <th>Reason</th>-->
+                    </tr>
+                  <tr>
+
+                      <th>Patient</th>
+                      <th>Date of Visit</th>
+                      <th>Medication</th>
+                      <th>Treatment</th>
+                      <th>Edit</th>
+                      <th>Delete</th>
+                  </tr>
+              </thead>
+              <tbody class="table" style="font-size:13px;">
+               {% for medicate in medic %}
+                  <tr>
+                      <td>{{medicate.patient}}</td>
+                      <td>{{medicate.date_of_visit}}</td>
+                      <td>{{medicate.diagnosis}}</td>
+                      <td>{{medicate.medication}}</td>
+                      <td>
+                          <a href="{% url 'myapp:edit_medicationrecords' medicate.id %}" title="Edit Product" class="btn btn-info"><i class="fas fa-pen"></i></a>
+                      </td>
+                       <td>
+                          <a href="{% url 'myapp:delete_medicationrecords' medicate.id %}" title="Delete Product" class="btn btn-info"><i class="fas fa-trash-alt"></i></a>
+                      </td>
+                  </tr>
+               {% endfor %}
+              </tbody>
+          </table>
+      </div>
