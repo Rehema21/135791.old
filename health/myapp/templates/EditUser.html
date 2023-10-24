@@ -32,7 +32,7 @@
               </div>
               <center><h2 class="card-title text-info">Edit</h2></center>
               <div class="container d-flex flex-column col-md-12 ">
-                     <form action="{% url 'myapp:edit_user' user_id=user.id %}" method="POST">
+                     <form action="{% url 'myapp:edit_user' user.id %}" method="POST">
                         {% csrf_token %}
                          <div class="row d-flex d-inline-block">
                         {% for field in form %}
@@ -68,7 +68,7 @@
                                     <span class="help-block">{{ error }}</span>
                                     {% endfor %}
                             <div class=" form-group">
-                                <button type="Submit" class="form-control btn btn-info text-white" style="background-color:;">Save</button>
+                                <button type="Submit" class="form-control btn btn-info text-white" style="background-color:;"  ">Save</button>
                             </div>
                              </div>
                      </form>

@@ -227,23 +227,17 @@ def user(request, user_id):
 	if user != None:
 		return render(request, "", {'user': user})
 
-def edit_user(request, user_id):
-
-	if request.user.id != user_id:
-		return redirect('/myapp/dashboard/')
-
-	user = get_object_or_404(User, id=user_id)
-
+def edit_user(request, pk):
+	user = get_object_or_404(User, id=pk)
+	form = UserProfileForm(instance=user)
 	if request.method == "POST":
 		form = UserProfileForm(request.POST, instance=user)
 		if form.is_valid():
 			user = form.save(commit=False)
 			user.save()
 			form.save()
-		else:
-			form = UserProfileForm(instance=user)
-
-		return render(request, 'EditUser.html', {'form': form, 'user_id': user_id})
+			return redirect('/myapp/dashboard/')
+	return render(request, 'EditUser.html', {'form': form, 'pk': pk})
 def delete_user(request, user_id):
 	user = get_object_or_404(User, id=user_id)
 	if request.method == 'POST':
@@ -281,7 +275,9 @@ def update_appointment(request, pk):
 	if request.method == 'POST':
 		form = PatientForm(request.POST, instance=appoint)
 		if form.is_valid():
-			form.save()
+			appoint = form.save(commit=False)
+			appoint.save()
+
 			return redirect('/')
 	context = {'my_form': form, 'pk': pk}
 	return render(request, 'appointment.html', context)

@@ -3,7 +3,7 @@ from.models import *
 @admin.register(UserDetails)
 class StaffAdmin(admin.ModelAdmin):
 	list_filter = ("email",)
-	list_display = ("username","first_name", "second_name", "last_name", "email",)
+	list_display = ("username", "first_name", "second_name", "last_name", "email",)
 	search_fields = ("email",)
 
 @admin.register(OtpModel)
@@ -16,7 +16,7 @@ class doctoradmin(admin.ModelAdmin):
 
 @admin.register(appointment)
 class appointmentadmin(admin.ModelAdmin):
-	list_display = ("first_name", "second_name", "last_name", "email","doctor")
+	list_display = ("first_name", "second_name", "last_name", "email", "doctor")
 
 @admin.register(Medicalrecord)
 class medicalappointmentadmin(admin.ModelAdmin):

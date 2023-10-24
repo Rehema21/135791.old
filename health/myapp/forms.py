@@ -84,5 +84,4 @@ class MedicalRecordForm(forms.ModelForm):
 		'dateofbirth': forms.DateInput(format=('%d/%b/%Y'), attrs={'type': 'date'}),
 		'dateofvisit': forms.DateInput(format=('%d/%b/%Y'), attrs={'type': 'date'}),
 		'email': forms.EmailInput(attrs={'': 'email'}),
-
 	    }
