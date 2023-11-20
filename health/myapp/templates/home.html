@@ -93,16 +93,16 @@
             Sidebar start
         -->
         <div class="quixnav">
-            <div class="quixnav-scroll">
+            <div class="quixnav-scroll" >
                 <ul class="metismenu" id="menu">
                     <li class="nav-label first">Main Menu</li>
                     <li><a href="{% url 'myapp:home' %}"><i
                                 class="icon icon-single-04"></i><span class="nav-text" onclick="openappointment(event,'appointment')" id="dash">Dashboard</span></a>
                     </li>
-                    <li><a href="{% url 'myapp:medication' %}"><i
-                                class="icon icon-single-04"></i><span class="" onclick="openappointment(event,'appointment')" id="med">Medication</span></a>
+                    <li><a href=""><i
+                                class="icon icon-single-04"></i><span class="" onclick="openappointment(event,'appointment')" id="med">Chat</span></a>
                     </li>
-                     <li><a href="{% url 'myapp:medical_record' %}"><i
+                     <li><a href="{% url 'myapp:medical_record'%}"><i
                                 class="icon icon-single-04"></i><span class="" onclick="openappointment(event,'appointment')" id="medical">Medical Reports</span></a>
                     </li>
                     <li><a href="{% url 'myapp:doctor_appointment' %}"><i
@@ -120,21 +120,21 @@
 
         <!--Content body start-->
         <div class="main-panel">
-<!--
-                 <div class="main_content " id="medicalrec" style="min-height: 450px;">
+
+                 <div class="main_content " id="mr" style="min-height: 450px;">
                     {% include 'medical_records.html' %}
                 </div>
-                <div class="main_content " id="users" style="min-height: 450px;">
-                    {% include 'medication.html' %}
+                <div class="main_content " id="medic" style="min-height: 450px;">
+                    {% include 'doctor_appointment.html' %}
                 </div>
-                 <div class="main_content " id="dashb" style="min-height: 450px;">
+                 <div class="main_content " id="pdashb" style="min-height: 450px;">
                     {% include 'doc_dashboard.html' %}
                 </div>
 
 
                 <div class="main_content " id="dashboard" >-->
 <!--                    {% include 'doc_dashboard.html' %}-->
-<!--                </div>-->
+                </div>
             Content body end
         -->
 
@@ -184,30 +184,30 @@
   <script>
 
     $(document).ready(function(){
-      $("#users").hide()
-      $("#medicalrec").hide()
-
-      $("#med").click(function(){
-       $("#users").show()
-       $("#medicalrec").hide()
-       $("#mydash").hide()
-      })
+      $("#mr").hide()
+      $("#medic").hide()
 
       $("#medical").click(function(){
-       $("#users").hide()
-      $("#medicalrec").show()
-      $("#dashb").hide()
+       $("#mr").show()
+       $("#medic").hide()
+       $("#pdashb").hide()
       })
 
-      $("#dash").click(function(){
-       $("#users").hide()
-       $("#dashb").show()
-      $("#medicalrec).hide()
+      $("#docappoint").click(function(){
+       $("#mr").hide()
+      $("#medic").show()
+      $("#pdashb").hide()
+      })
+
+<!--      $("#dash").click(function(){-->
+<!--       $("#users").hide()-->
+<!--       $("#dashb").show()-->
+<!--      $("#medicalrec).hide()-->
 
       })
 
-      $("#dash").css('cursor', 'pointer');
-      $("#med").css('cursor', 'pointer');
+      $("#docappoint").css('cursor', 'pointer');
+<!--      $("#med").css('cursor', 'pointer');-->
       $("#medical").css('cursor', 'pointer');
 
     $("#searchbtn").click(function(e) {

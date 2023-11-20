@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import send_mail
 
 from django.http import HttpResponseRedirect
@@ -25,12 +26,23 @@ from .tokens import account_activation_token
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 
-User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
+UserDetails.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
 @csrf_exempt
+# @login_required(login_url='/myapp/login/')
+# @allowed_users(allowed_roles=['admin'])
 def registration_user(request):
 	if request.method == 'POST':
 		form = UserCreateForm(request.POST)
 		if form.is_valid():
+			username=request.POST.get('username')
+			first_name=request.POST.get('first_name')
+			second_name=request.POST.get('second_name')
+			last_name=request.POST.get('last_name')
+			email=request.POST.get('email')
+			password1=request.POST.get('password1')
+			password2=request.POST.get('password2')
+			UserDetails.objects.create(username='username', password=make_password(password1),is_active=False)
+			print(username)
 			user = form.save(commit=False)
 			user.is_active = False
 			form.save()
@@ -54,7 +66,7 @@ def activate_account(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = get_user_model().objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+    except (TypeError, ValueError, OverflowError, UserDetails.DoesNotExist):
         user = None
 
     if user and account_activation_token.check_token(user, token):
@@ -74,33 +86,33 @@ def send_email(**kwargs):
 	send_mail(subject, message, email_from, recipient_list)
 
 
-
-
-
 @csrf_exempt
 def login_user(request):
 	if request.method == "POST":
-		username = request.POST.get('username')
-		password = request.POST.get('password')
-		form = AuthenticationForm(data=request.POST)
-		user = authenticate(username=username, password=password)
-		print(user)
-		if form.is_valid():
-			# user = request.user
-			print(user.groups.all())
-			if user.groups.filter(name__iexact="admin").exists():
-				login(request, user)
-				return HttpResponseRedirect('/myapp/dashboard/')
-			elif user.groups.filter(name__iexact="doctor").exists():
-				login(request, user)
-				return HttpResponseRedirect('/myapp/home/')
-			elif user.groups.filter(name__iexact="patient").exists():
-				login(request, user)
-				return HttpResponseRedirect('/myapp/patient_page/')
-			else:
-				login(request, user)
-				return HttpResponseRedirect('/myapp/login/')
-
+		form = AuthenticationForm()
+		username = request.POST['username']
+		password = request.POST['password']
+		user = UserDetails.objects.get(username=username)
+		# userdetails = UserDetails.objects.get(id=user.id)
+		# print(user.isauthenticated)
+		if user:
+			print(user)
+			if not user.check_password(password):
+				form.add_error(None, "Invalid login credentials")
+				# Render the login form page with custom error message
+				return render(request, "login.html", {"loginform": form})
+			login(request, user)
+			print(user.is_authenticated)
+			print(user.is_admin())
+			print(user.is_patient())
+			print(user.is_doctor())
+			if user.is_admin():
+				return redirect("/myapp/dashboard/")
+			elif user.is_patient():
+				return redirect("/myapp/home/")
+			elif user.is_doctor():
+				return redirect('/myapp/patient_page/')
+			# Return a response even in the case of an invalid form
 	form = AuthenticationForm()
 	return render(request, "login.html", {"loginform": form})
 def logout_user(request):
@@ -123,10 +135,12 @@ def medication(request):
 
 
 
-@login_required(login_url='/myapp/login/')
-@allowed_users(allowed_roles=['admin'])
+# @login_required(login_url='/myapp/login/')
+# @login_required()
+# @allowed_users(allowed_roles=['admin'])
 def dashboard(request):
 	my_user = request.user
+	context = {}
 	if request.user.is_authenticated:
 		doctor = Doctor.objects.all()
 		users = UserDetails.objects.all()
@@ -136,20 +150,23 @@ def dashboard(request):
 		doctor_count = UserDetails.objects.filter(group='doctor').count()
 		patient_count = UserDetails.objects.filter(group='patient').count()
 
-	context = {
-		"Doctor": doctor,
-		"myusers": users,
-		"appointment": appoint,
-		"my_user": my_user,
-		'admin_count': admin_count,
-		'doctor_count': doctor_count,
-		'patient_count': patient_count
-	}
+		context = {
+			"Doctor": doctor,
+			"myusers": users,
+			"appointment": appoint,
+			"my_user": my_user,
+			'admin_count': admin_count,
+			'doctor_count': doctor_count,
+			'patient_count': patient_count
+		}
 	return render(request, "dashboard.html", context)
-@login_required(login_url='/myapp/login/')
-@allowed_users(allowed_roles=['doctor'])
+# @login_required(login_url='/myapp/login/')
+# @allowed_users(allowed_roles=['doctor'])
 def home(request):
-	return render(request,'home.html')
+
+
+
+	return render(request,'home.html', )
 
 
 # def create_event_on_google_calendar(appointment_date, appointment_time, doctor):
@@ -207,10 +224,16 @@ def Appointment(request):
 	}
 	return render(request, "appointment.html", context_data)
 
+def get_doctors(request):
+    doctors = UserDetails.objects.filter(group='doctor')
+    return render(request, 'home.html', {'doctors': doctors})
+
 def doctor_appointment(request):
+	if request.user.is_authenticated:
+		appoint = appointment.objects.all()
 
 
-	return render(request, 'doctor_appointment.html', )
+	return render(request, 'doctor_appointment.html',{"appointment": appoint,} )
 
 def send_email(**kwargs):
 	email_from = settings.EMAIL_HOST_USER
@@ -228,10 +251,10 @@ def user(request, user_id):
 		return render(request, "", {'user': user})
 
 def edit_user(request, pk):
-	user = get_object_or_404(User, id=pk)
+	user = get_object_or_404(UserDetails, id=pk)
 	form = UserProfileForm(instance=user)
 	if request.method == "POST":
-		form = UserProfileForm(request.POST, instance=user)
+		form = UserCreateForm(request.POST, instance=user)
 		if form.is_valid():
 			user = form.save(commit=False)
 			user.save()
@@ -239,7 +262,7 @@ def edit_user(request, pk):
 			return redirect('/myapp/dashboard/')
 	return render(request, 'EditUser.html', {'form': form, 'pk': pk})
 def delete_user(request, user_id):
-	user = get_object_or_404(User, id=user_id)
+	user = get_object_or_404(UserDetails, id=user_id)
 	if request.method == 'POST':
 		user.delete()
 		# id= data.get('id')
@@ -253,32 +276,31 @@ def medical_record(request):
 	if request.method == "POST":
 		form = MedicalRecordForm(request.POST)
 		if form.is_valid():
+			patients = UserDetails.objects.filter(group='patient')
 			form.save()
-			# return HttpResponseRedirect()
-			messages.success(request, f"You have succesfully recorded")
+			messages.success(request, f"You have succesfully recorded", {'patients': patients})
 		else:
 			print(form.errors)
 	form = MedicalRecordForm()
 	return render(request, 'medical_records.html', {'medform': form})
 def view_medical_record(request):
 	patient_group = Group.objects.get(name='Patient')
-	patients = User.objects.filter(groups__in=[patient_group])
+	patients = UserDetails.objects.filter(groups__in=[patient_group])
 	return render(request, view_medical_record.html, {'medical_record': medical_record})
 
 @login_required(login_url='/myapp/login/')
 @allowed_users(allowed_roles=['patient', 'admin'])
 def update_appointment(request, pk):
-	appoint = get_object_or_404(appointment, id=pk)
-	# appoint = appointment.objects.get(id=pk)
+	appoint = get_object_or_404(appointment, id=pk)  # Use "Appointment" with a capital letter
 	form = PatientForm(instance=appoint)
 
 	if request.method == 'POST':
 		form = PatientForm(request.POST, instance=appoint)
 		if form.is_valid():
-			appoint = form.save(commit=False)
-			appoint.save()
+			form.save()  # Save the form with commit=True
 
-			return redirect('/')
+			return redirect('/myapp/dashboard/')
+
 	context = {'my_form': form, 'pk': pk}
 	return render(request, 'appointment.html', context)
 def delete_appointment(request, pk):
@@ -316,7 +338,7 @@ def patient_page(request):
 
 def edit_medicalrecords(request, pk):
 	medr = get_object_or_404(appointment, id=pk)
-	user = get_object_or_404(User, id=pk)
+	user = get_object_or_404(UserDetails, id=pk)
 
 	if request.method == "POST":
 		form = UserProfileForm(request.POST, instance=medr)
@@ -357,3 +379,182 @@ def delete_medicationrecords(request, pk):
 		medrecord.delete()
 		return redirect('/myapp/patient_page/')
 	return render(request, 'delete_medicalrecords.html', {'medrecord': medrecord})
+
+#
+# @csrf_exempt
+# @login_required(login_url='login')
+# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+# def home(request, pk):
+# 	if request.user.is_patient:
+# 		User = get_user_model()
+# 		users = User.objects.all()
+# 		patients = Patient.objects.get(user_id=pk)
+# 		# doctor = Doctor_Information.objects.all()
+# 		appointments = Appointment.objects.filter(patient=patients).filter(appointment_status='confirmed')
+# 		doctor = Doctor_Information.objects.filter(appointment__in=appointments)
+#
+# 		chats = {}
+# 		if request.method == 'GET' and 'u' in request.GET:
+# 			# chats = chatMessages.objects.filter(Q(user_from=request.user.id & user_to=request.GET['u']) | Q(user_from=request.GET['u'] & user_to=request.user.id))
+# 			chats = chatMessages.objects.filter(
+# 				Q(user_from=request.user.id, user_to=request.GET['u']) | Q(user_from=request.GET['u'],
+# 																		   user_to=request.user.id))
+# 			chats = chats.order_by('date_created')
+# 			doc = Doctor_Information.objects.get(user_id=request.GET['u'])
+#
+# 			context = {
+# 				"page": "home",
+# 				"users": users,
+# 				"chats": chats,
+# 				"patient": patients,
+# 				"doctor": doctor,
+# 				"doc": doc,
+# 				"app": appointments,
+#
+# 				"chat_id": int(request.GET['u'] if request.method == 'GET' and 'u' in request.GET else 0)
+# 			}
+# 		elif request.method == 'GET' and 'search' in request.GET:
+# 			query = request.GET.get('search')
+# 			doctor = Doctor_Information.objects.filter(
+# 				Q(user__first_name__icontains=query) | Q(user__last_name__icontains=query))
+# 			# chats = chatMessages.objects.filter(Q(user_from=request.user.id, user_to=request.GET['u']) | Q(user_from=request.GET['u'], user_to=request.user.id))
+# 			# chats = chats.order_by('date_created')
+# 			# doc = Doctor_Information.objects.get(username=request.GET['search'])
+# 			context = {
+# 				"page": "home",
+# 				"users": users,
+#
+# 				"patient": patients,
+#
+# 				"doctor": doctor,
+#
+# 			}
+# 		else:
+#
+# 			context = {
+# 				"page": "home",
+# 				"users": users,
+# 				"chats": chats,
+# 				"patient": patients,
+# 				"doctor": doctor,
+# 				"app": appointments,
+# 				"chat_id": int(request.GET['u'] if request.method == 'GET' and 'u' in request.GET else 0)
+# 			}
+# 		print(request.GET['u'] if request.method == 'GET' and 'u' in request.GET else 0)
+# 		return render(request, "chat.html", context)
+# 	elif request.user.is_doctor:
+# 		User = get_user_model()
+# 		users = User.objects.all()
+# 		# patients = Patient.objects.all()
+# 		doctor = Doctor_Information.objects.get(user_id=pk)
+# 		appointments = Appointment.objects.filter(doctor=doctor).filter(appointment_status='confirmed')
+# 		patients = Patient.objects.filter(appointment__in=appointments)
+#
+# 		chats = {}
+# 		if request.method == 'GET' and 'u' in request.GET:
+# 			# chats = chatMessages.objects.filter(Q(user_from=request.user.id & user_to=request.GET['u']) | Q(user_from=request.GET['u'] & user_to=request.user.id))
+# 			chats = chatMessages.objects.filter(
+# 				Q(user_from=request.user.id, user_to=request.GET['u']) | Q(user_from=request.GET['u'],
+# 																		   user_to=request.user.id))
+# 			chats = chats.order_by('date_created')
+# 			pat = Patient.objects.get(user_id=request.GET['u'])
+#
+# 			context = {
+# 				"page": "home",
+# 				"users": users,
+# 				"chats": chats,
+# 				"patient": patients,
+# 				"doctor": doctor,
+# 				"pat": pat,
+# 				"app": appointments,
+#
+# 				"chat_id": int(request.GET['u'] if request.method == 'GET' and 'u' in request.GET else 0)
+# 			}
+# 		elif request.method == 'GET' and 'search' in request.GET:
+# 			query = request.GET.get('search')
+# 			patients = Patient.objects.filter(
+# 				Q(user__first_name__icontains=query) | Q(user__last_name__icontains=query))
+# 			# chats = chatMessages.objects.filter(Q(user_from=request.user.id, user_to=request.GET['u']) | Q(user_from=request.GET['u'], user_to=request.user.id))
+# 			# chats = chats.order_by('date_created')
+# 			# doc = Doctor_Information.objects.get(username=request.GET['search'])
+# 			context = {
+# 				"page": "home",
+# 				"users": users,
+#
+# 				"patient": patients,
+# 				"app": appointments,
+# 				"doctor": doctor,
+#
+# 			}
+#
+#
+#
+# 		else:
+#
+# 			context = {
+# 				"page": "home",
+# 				"users": users,
+# 				"chats": chats,
+# 				"patient": patients,
+# 				"doctor": doctor,
+# 				"chat_id": int(request.GET['u'] if request.method == 'GET' and 'u' in request.GET else 0)
+# 			}
+# 		print(request.GET['u'] if request.method == 'GET' and 'u' in request.GET else 0)
+# 		return render(request, "chat-doctor.html", context)
+#
+#
+# @csrf_exempt
+# @login_required
+# def profile(request):
+# 	context = {
+# 		"page": "profile",
+# 	}
+# 	return render(request, "chat/profile.html", context)
+#
+#
+# @csrf_exempt
+# @login_required(login_url='login')
+# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+# def get_messages(request):
+# 	chats = chatMessages.objects.filter(Q(id__gt=request.POST['last_id']),
+# 										Q(user_from=request.user.id, user_to=request.POST['chat_id']) | Q(
+# 											user_from=request.POST['chat_id'], user_to=request.user.id))
+# 	new_msgs = []
+# 	for chat in list(chats):
+# 		data = {}
+# 		data['id'] = chat.id
+# 		data['user_from'] = chat.user_from.id
+# 		data['user_to'] = chat.user_to.id
+# 		data['message'] = chat.message
+# 		data['date_created'] = chat.date_created.strftime("%b-%d-%Y %H:%M")
+# 		print(data)
+# 		new_msgs.append(data)
+# 	return HttpResponse(json.dumps(new_msgs), content_type="application/json")
+#
+#
+# @csrf_exempt
+# @login_required(login_url='login')
+# @cache_control(no_cache=True, must_revalidate=True, no_store=True)
+# def send_chat(request):
+# 	resp = {}
+# 	User = get_user_model()
+# 	if request.method == 'POST':
+# 		post = request.POST
+#
+# 		u_from = User.objects.get(id=post['user_from'])
+# 		u_to = User.objects.get(id=post['user_to'])
+# 		insert = chatMessages(user_from=u_from, user_to=u_to, message=post['message'])
+# 		try:
+# 			insert.save()
+# 			resp['status'] = 'success'
+# 		except Exception as ex:
+# 			resp['status'] = 'failed'
+# 			resp['mesg'] = ex
+# 	else:
+# 		resp['status'] = 'failed'
+#
+# 	return HttpResponse(json.dumps(resp), content_type="application/json")
+#
+
+
+

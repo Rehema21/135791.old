@@ -21,7 +21,7 @@
                  {% if messages %}
                  <div class="messages">
                      {% for message in messages %}
-                     <p class="{{ message.tags }}">
+
                          <h4 class="alert-dark text-center" style="bg-success">
                          {{ message }}
                          </h4>
@@ -32,15 +32,25 @@
               </div>
               <center><h2 class="card-title text-info">Medical Record</h2></center>
               <div class="container d-flex flex-column col-md-12 ">
-                     <form action="{% url 'myapp:medical_record' %}" method="POST">
+                     <form action="{% url 'myapp:medical_record'%}" method="POST">
                         {% csrf_token %}
                          <div class="row d-flex d-inline-block">
                         {% for field in medform %}
-                             {% if field.name == "patient" %}
+                             {% if field.name == "first_name" %}
                              <div class="col-md-6 form-group">
                                 <label class="text-dark"> {{field.label}}<br></label>
                                 {{field|add_class:'form-control border border-info'}}<br>
                              </div>
+                             {% elif field.name == "second_name" %}
+                                  <div class="col-md-6 form-group">
+                                    <label class="text-dark"> {{field.label}}<br></label>
+                                    {{field|add_class:'form-control border border-info'}}<br>
+                                 </div>
+                             {% elif field.name == "last_name" %}
+                                  <div class="col-md-6 form-group">
+                                    <label class="text-dark"> {{field.label}}<br></label>
+                                    {{field|add_class:'form-control border border-info'}}<br>
+                                 </div>
 
                              {% elif field.name == "dateofbirth" %}
                                   <div class="col-md-6 form-group">

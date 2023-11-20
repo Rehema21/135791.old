@@ -25,6 +25,4 @@ urlpatterns = [
     path('edit_medicationrecords/<str:pk>/', edit_medicationrecords, name='edit_medicationrecords'),
     path('delete_medicationrecords/<str:pk>/', doctor_appointment, name='delete_medicationrecords'),
     path('patient_page/', patient_page, name='patient_page'),
-
-
 ]

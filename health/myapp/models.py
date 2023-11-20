@@ -1,8 +1,14 @@
 import math
 import random
 import uuid
-from django.contrib.auth.models import User,Group
+
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import Group
+from django.contrib.auth import get_user_model
 
 class BaseModel(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -19,16 +25,30 @@ class BaseModel(models.Model):
 
 class UserDetails(User):
 	second_name = models.CharField(max_length=20)
-	group = models.CharField(max_length=20)
+	ROLE_CHOICES = [
+		('admin', 'Admin'),
+		('patient', 'Patient'),
+		('doctor', 'Doctor'),
+	]
+
+	role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='patient')
+	def is_admin(self):
+		return self.role == 'admin'
+
+	def is_patient(self):
+		return self.role == 'patient'
+
+	def is_doctor(self):
+		return self.role == 'doctor'
 
 	def __str__(self):
 		return self.username
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(UserDetails, on_delete=models.CASCADE)
     verification_token = models.CharField(max_length=40, blank=True, null=True)
 
 class OtpModel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(UserDetails, on_delete=models.CASCADE)
     otp = models.CharField(max_length=7)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -41,7 +61,7 @@ class Doctor(models.Model):
 	phone_number = models.IntegerField(default=0)
 	email = models.EmailField(max_length=50)
 	speciality = models.CharField(max_length=20)
-	google_credentials = models.JSONField(null=True, blank=True)
+	# google_credentials = models.JSONField(null=True, blank=True)
 
 
 	def __str__(self):
@@ -82,4 +102,14 @@ class Medicalrecord(BaseModel):
 	treatment = models.TextField(max_length=20)
 	medication = models.TextField(max_length=20)
 	dateofvisit = models.DateField(null=True)
+
+# class Conversation(models.Model):
+#     participants = models.ManyToManyField(User)
+#
+# class Message(models.Model):
+#     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE)
+#     sender = models.ForeignKey(User, on_delete=models.CASCADE)
+#     content = models.TextField()
+#     timestamp = models.DateTimeField(auto_now_add=True)
+#     is_read = models.BooleanField(default=False)
 

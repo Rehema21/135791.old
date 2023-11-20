@@ -26,8 +26,9 @@ SECRET_KEY = 'django-insecure-=fh9&9-$tdk*32uu0vl1pp6(w_oaii+ln3@j*_*px1h)795t4d
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,7 +41,6 @@ INSTALLED_APPS = [
     'myapp',
     'widget_tweaks',
     'health',
-    # 'two_factor',
      'django_otp',
     # 'otp_yubikey',
 ]
@@ -75,6 +75,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'health.wsgi.application'
+
+# settings.py
 
 
 # Database
@@ -129,7 +131,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# settings.py
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
