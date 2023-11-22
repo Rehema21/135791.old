@@ -13,6 +13,8 @@ urlpatterns = [
     path('medicalrecord/', medical_record, name='medical_record'),
     path('Appointment/', Appointment, name='Appointment'),
     path('home/', home, name='home'),
+    path('generate_excel/', generate_excel, name='generate_excel'),
+    path('doctor/', doctor, name='doctor'),
     path('edit/<str:pk>/', edit_user, name='edit_user'),
     path('delete/<int:user_id>/', delete_user, name='delete_user'),
     path('activate/<uidb64>/<token>/', activate_account, name='activate_account'),
@@ -25,4 +27,5 @@ urlpatterns = [
     path('edit_medicationrecords/<str:pk>/', edit_medicationrecords, name='edit_medicationrecords'),
     path('delete_medicationrecords/<str:pk>/', doctor_appointment, name='delete_medicationrecords'),
     path('patient_page/', patient_page, name='patient_page'),
+    path('generate_individual_pdf/<uuid:medication_id>/', GenerateIndividualPDF.as_view(), name='generate_individual_pdf'),
 ]

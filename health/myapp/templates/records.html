@@ -21,8 +21,7 @@
         <!--                <th>Reason</th>-->
                     </tr>
                   <tr>
-                      <th>FirstName</th>
-                      <th>Second Name</th>
+                      <th>Patient</th>
                       <th>DOB</th>
                       <th>Gender</th>
                       <th>Medication</th>
@@ -36,8 +35,7 @@
               <tbody class="table" style="font-size:13px;">
                {% for med in medical %}
                   <tr>
-                      <td>{{med.first_name}}</td>
-                      <td>{{med.second_name}}</td>
+                      <td>{{med.patient}}</td>
                       <td>{{med.dateofbirth}}</td>
                       <td>{{med.gender}}</td>
                       <td>{{med.medication}}</td>

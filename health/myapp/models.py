@@ -81,7 +81,7 @@ class appointment(BaseModel):
 		return str(self.phone_number + self.id_number)
 
 class Medication(BaseModel):
-	patient = models.OneToOneField(UserDetails, on_delete=models.CASCADE)
+	patient = models.ForeignKey(UserDetails, on_delete=models.CASCADE)
 	date_of_visit = models.DateField(null=True)
 	diagnosis = models.TextField(max_length=1000)
 	medication = models.TextField(max_length=600)

@@ -6,7 +6,7 @@
                        <tr>
                         <th colspan="6">
                             <div class="pagetitle">
-                                    <h1>Medical Records</h1>
+                                    <h1>Medication</h1>
                                 </div>
                         </th>
                         <th colspan="6">
@@ -28,6 +28,7 @@
                       <th>Treatment</th>
                       <th>Edit</th>
                       <th>Delete</th>
+                      <th>PDF</th>
                   </tr>
               </thead>
               <tbody class="table" style="font-size:13px;">
@@ -43,6 +44,9 @@
                        <td>
                           <a href="{% url 'myapp:delete_medicationrecords' medicate.id %}" title="Delete Product" class="btn btn-info"><i class="fas fa-trash-alt"></i></a>
                       </td>
+                      <td>
+                        <a href="{% url 'myapp:generate_individual_pdf' medicate.id %}" class="btn btn-info" target="_blank"></a>
+                        </td>
                   </tr>
                {% endfor %}
               </tbody>

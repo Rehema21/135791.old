@@ -10,8 +10,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
-<nav class="navbar navbar-nav-right justify-content-end " id="navregistration">
-
+<nav class="navbar navbar-expand-lg navbar-light bg-blue">
+<!--    <a class="navbar-brand" href="#">Your Website Name</a>-->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'myapp:doctor_appointment' %}">Appointment</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'myapp:medical_record' %}">Medical Records</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'myapp:medication' %}">Medication</a>
+            </li>
+            <li class="nav-item">
+               <a class="nav-link" href="{% url 'myapp:logout_user' %}">
+                   Log Out
+                  </a>
+            </li>
+        </ul>
+    </div>
 </nav>
 {%load widget_tweaks %}
     <div  id="registrationdiv1" style="background-color: #F5F8FE;">
@@ -30,7 +51,7 @@
                  </div>
                {% endif %}
               </div>
-              <center><h2 class="card-title text-info">REGISTER</h2></center>
+              <center><h2 class="card-title text-info">Medication</h2></center>
               <div class="container d-flex flex-column col-md-12 ">
                      <form action="{% url 'myapp:medication' %}" method="POST">
                         {% csrf_token %}
@@ -69,12 +90,8 @@
                                     <span class="help-block">{{ error }}</span>
                                     {% endfor %}
                             <div class=" form-group">
-                                <button type="Submit" class="form-control btn btn-info text-white" style="background-color:;">REGISTER</button>
+                                <button type="Submit" class="form-control btn btn-info text-white" style="background-color:;">Submit</button>
                             </div>
-                             <div class="text-center">
-                          <input type="checkbox" checked="checked">Remember Me
-                          <p>If you already have an account <span ><a href="{% url 'myapp:logout_user' %}" id="linkregister" style="text-decoration: none;">Sign Out</a></span></p>
-                         </div>
                              </div>
                      </form>
 

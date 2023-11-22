@@ -1,17 +1,31 @@
-from django.http import HttpResponse
+# decorators.py
+from functools import wraps
 from django.shortcuts import redirect
 
-def allowed_users(allowed_roles=[]):
-    def decorator(view_func):
-        def wrapper_func(request, *args, **kwargs):
-            group = None
-            if request.user.groups.exists():
-                group = request.user.groups.all()[0].name
-            if group in allowed_roles or request.user.is_staff:
-                return view_func(request, *args, **kwargs)
-            else:
-                return HttpResponse('You are not authorized.')
+def admin_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_admin():
+            return view_func(request, *args, **kwargs)
+        else:
+            return redirect('/myapp/login/')  # Redirect to an access denied page or login page
+    return _wrapped_view
 
-        return wrapper_func
+def patient_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_patient():
+            return view_func(request, *args, **kwargs)
+        else:
+            return redirect('/myapp/login/')
+    return _wrapped_view
 
-    return decorator
+def doctor_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_doctor():
+            return view_func(request, *args, **kwargs)
+        else:
+            return redirect('/myapp/login/')  # Redirect to an access denied page or login page
+    return _wrapped_view
+

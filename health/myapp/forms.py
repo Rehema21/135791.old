@@ -90,7 +90,7 @@ class MedicalRecordForm(forms.ModelForm):
 		return dateofbirth
 
 	def clean_dateofvisit(self):
-		dateofvisit = self.cleaned_data['appointment_date']
+		dateofvisit = self.cleaned_data['dateofvisit']
 		if dateofvisit < datetime.date.today():
 			raise ValidationError("Date cannot be in the past")
 		return dateofvisit
