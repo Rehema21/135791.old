@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import *
-from datetime import date, datetime
 import datetime
 from werkzeug.routing import ValidationError
 from django.utils.crypto import get_random_string
@@ -38,25 +37,27 @@ class UserProfileForm(forms.ModelForm):
 class PatientForm(forms.ModelForm):
     class Meta:
         model = appointment
-        fields = ['first_name', 'last_name', 'second_name', "id_number", 'email', 'phone_number',
-                  'doctor', 'appointment_date', 'appointment_time']
+        fields = ['first_name', 'description','location', 'second_name', "id_number", 'email', 'phone_number',
+                  'doctor', 'start', 'end']
 
         labels = {
-            'first_name': 'First Name', 'second_name': 'Second Name', 'last_name': 'Last Name',
+            'first_name': 'First Name', 'second_name': 'Second Name', 'description': 'Description', 'location': 'Location',
             'id_number': 'ID Number', 'phone_number': 'Phone Number', 'doctor': 'Doctor',
-            'appointment_date': 'Date of Appointment', 'appointment_time': 'Time of Appointment',
+            'start': 'Start', 'end': 'End',
         }
 
         widgets = {
             'first_name': forms.TextInput(attrs={'placeholder': 'First name'}),
             'second_name': forms.TextInput(attrs={'placeholder': 'Second name'}),
-            'last_name': forms.TextInput(attrs={'placeholder': 'Last name'}),
+            'description': forms.Textarea(attrs={'placeholder': 'description'}),
+            'location': forms.TextInput(attrs={'placeholder': 'location'}),
             'id_number': forms.NumberInput(attrs={'placeholder': 'ID number'}),
             'email': forms.EmailInput(attrs={'placeholder': 'Email'}),
             'phone_number': forms.NumberInput(attrs={'placeholder': 'Phone number'}),
             'doctor': forms.Select(attrs={'placeholder': 'Doctor'}),
-            'appointment_date': forms.DateInput(format=('%d/%b/%Y'), attrs={'type': 'date', 'min': datetime.date.today()}),
-            'appointment_time': forms.TimeInput(attrs={'type': 'time'}),
+            'start': forms.TextInput(attrs={'type': 'datetime-local', 'min': datetime.datetime.now()}),
+            'end': forms.TextInput(attrs={'type': 'datetime-local', 'min': datetime.datetime.now()}),
+
         }
 
     def clean_appointment_date(self):

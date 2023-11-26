@@ -47,7 +47,12 @@
                                          {{field.label}}<br>
                                         {{field|add_class:'form-control border border-info'}}<br>
                                     </div>
-                            {% elif field.name == "last_name" %}
+                                {% elif field.name == "description" %}
+                                    <div class="col-md-3 form-group">
+                                         {{field.label}}<br>
+                                        {{field|add_class:'form-control border border-info'}}<br>
+                                    </div>
+                                {% elif field.name == "location" %}
                                     <div class="col-md-3 form-group">
                                          {{field.label}}<br>
                                         {{field|add_class:'form-control border border-info'}}<br>
@@ -72,18 +77,20 @@
                                          {{field.label}}
                                         {{field|add_class:'form-control border border-info'}}<br>
                                     </div>
-                                {% elif field.name == "appointment_time" %}
+
+                                {% elif field.name == "start" %}
                                     <div class="col-md-3 form-group">
                                          {{field.label}}
                                         {{field|add_class:'form-control border border-info'}}<br>
                                     </div>
-                                {% elif field.name == "appointment_date" %}
+                                {% elif field.name == "end" %}
                                     <div class="col-md-3 form-group">
                                          {{field.label}}
                                         {{field|add_class:'form-control border border-info'}}<br>
                                     </div>
+
                                 {% elif field.name == "doctor" %}
-                                    <div class="col-md-3 form-group">
+                                    <div class="col-md-6 form-group">
                                          {{field.label}}
                                         {{field|add_class:'form-control border border-info'}}<br>
                                     </div>

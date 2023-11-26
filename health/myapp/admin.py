@@ -16,7 +16,7 @@ class doctoradmin(admin.ModelAdmin):
 
 @admin.register(appointment)
 class appointmentadmin(admin.ModelAdmin):
-	list_display = ("first_name", "second_name", "last_name", "email", "doctor")
+	list_display = ("first_name", "second_name","email", "doctor")
 
 @admin.register(Medicalrecord)
 class medicalappointmentadmin(admin.ModelAdmin):

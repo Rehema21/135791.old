@@ -69,13 +69,15 @@ class Doctor(models.Model):
 class appointment(BaseModel):
 	first_name = models.CharField(max_length=20)
 	second_name = models.CharField(max_length=20)
-	last_name = models.CharField(max_length=20)
+	location = models.CharField(max_length=20)
+	description = models.TextField()
 	id_number = models.IntegerField(default=0)
 	phone_number = models.IntegerField(default=0)
 	email = models.EmailField(max_length=50)
 	doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-	appointment_date = models.DateField(null=True)
-	appointment_time = models.TimeField(null=True)
+	start = models.DateTimeField(null=True)
+	end = models.DateTimeField(null=True)
+
 
 	def __str__(self):
 		return str(self.phone_number + self.id_number)
