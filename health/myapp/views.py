@@ -4,6 +4,7 @@ import os
 import random
 from sys import flags
 
+import dateutil
 from django.conf import settings
 from google.auth.transport.requests import Request
 from django.contrib.auth import authenticate, login, logout, get_user_model
@@ -22,6 +23,7 @@ from django.template.loader import render_to_string, get_template
 from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode
+from google.oauth2 import service_account
 from google.oauth2.credentials import Credentials
 from google.protobuf import service
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -226,29 +228,45 @@ def doctor(request):
 # @login_required(login_url='/myapp/login/')
 # @allowed_users(allowed_roles=['patient'])
 def Appointment(request):
+    context = {}
+
     if request.method == 'POST':
         form = PatientForm(request.POST)
+
         if form.is_valid():
             doctor = form.cleaned_data["doctor"]
             first_name = form.cleaned_data["first_name"]
             second_name = form.cleaned_data["second_name"]
+            email = form.cleaned_data["email"]
             start = form.cleaned_data["start"]
             end = form.cleaned_data["end"]
+            location = form.cleaned_data['location']
+            description = form.cleaned_data['description']
 
-            print('value', doctor.id)
-            # print(date.today())
+            # Create event in Google Calendar
+            k = {"start": start, "end": end, 'location': location, 'description': description, 'doctor': doctor.email,
+                 'patient': email}
+            context = create_event(**k)
 
-            form.save()
-            doctor = Doctor.objects.get(id=doctor.id)
-            # create_event_on_google_calendar(appointment_date, appointment_time, doctor)
-            email = {
+            # Send email notification to the doctor
+            doctor_email = {
                 "recipient_email": doctor.email,
-                "message": f"you have an appointment with  {first_name} {second_name} from {start} to {end}"
+                "message": f"You have an appointment with {first_name} {second_name} from {start} to {end}"
             }
-            send_email(**email)
-            messages.success(request, f"You have succesfully booked your appointment with {doctor.first_name}")
+            send_email(**doctor_email)
+
+            # Send email notification to the patient
+            patient_email = {
+                "recipient_email": email,
+                "message": f"You have successfully booked an appointment with Dr. {doctor.first_name} from {start} to {end}"
+            }
+            send_email(**patient_email)
+
+            messages.success(request, f"You have successfully booked your appointment with Dr. {doctor.first_name}")
+            return render(request, "appointment.html", context)
         else:
             print(form.errors)
+
     form = PatientForm()
     context_data = {
         'my_form': form,
@@ -389,13 +407,6 @@ def update_doctor(request, pk):
     context = {'my_form': form, 'pk': pk}
     return render(request, 'appointment.html', context)
 
-
-# def delete_doctor(request, pk):
-# 	appoint = get_object_or_404(appointment, id=pk)
-# 	if request.method == 'POST':
-# 		appoint.delete()
-# 		return redirect('/myapp/dashboard/')
-# 	return render(request, 'delete_appointment.html', {'appoint': appoint})
 def patient_page(request):
     med = Medicalrecord.objects.none()  # Initialize 'med' with an empty queryset
     medicate = Medication.objects.none()  # Initialize 'medicate' with an empty queryset
@@ -491,15 +502,15 @@ class GenerateIndividualPDF(View):
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/calendar-python-quickstart.json
-SCOPES = 'https://www.googleapis.com/auth/calendar'
-CLIENT_SECRET_FILE = 'credentials.json'
-APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
 
 def get_context_data(self, medication_id, **kwargs):
     medicate = get_object_or_404(Medication, id=medication_id)
     return {'medicate': medicate}
 
+SCOPES = 'https://www.googleapis.com/auth/calendar'
+CLIENT_SECRET_FILE = 'token.json'
+APPLICATION_NAME = 'Google Calendar API Python Quickstart'
 
 def get(self, request, medication_id, *args, **kwargs):
     template = get_template(self.medicationdetails.html)
@@ -533,7 +544,7 @@ def get_event(request):
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                "credentials.json", SCOPES
+                "myapp/credentials.json", SCOPES
             )
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
@@ -563,100 +574,109 @@ def get_event(request):
             return
         context = {'events': events}
 
-        # Prints the start and name of the next 10 events
+        now_datetime = datetime.datetime.utcnow()
         for event in events:
             start = event["start"].get("dateTime", event["start"].get("date"))
-            print(start, event["summary"])
-        return render(request, 'appointments.html', context=context)
+            event_datetime = dateutil.parser.parse(start)
+            if event_datetime > now_datetime:
+                print(start, event["summary"])
+        return render(request, 'appointment.html', context=context)
+
+    # Replace the above code with the modified code snippet here...
 
     except HttpError as error:
         print(f"An error occurred: {error}")
 
 
+def get_saved_credentials(filename='token.json'):
+    file_data = {}
+    try:
+        with open(filename, 'r') as file:
+            file_data = json.load(file)
+    except FileNotFoundError:
+        print("Credentials file not found.")
+        return None
+
+    if 'refresh_token' in file_data and 'client_id' in file_data and 'client_secret' in file_data:
+        credentials = Credentials(**file_data)
+
+        # Check if the credentials are valid
+        if not credentials.valid:
+            try:
+                credentials.refresh(Request())
+                # Save the refreshed credentials
+                with open(filename, 'w') as file:
+                    json.dump(credentials.to_json(), file)
+            except Exception as e:
+                print(f"Error refreshing credentials: {e}")
+                return None
+
+        return credentials
+    else:
+        print("Credentials incomplete.")
+        return None
 
 
 
-def get_credentials():
-    """Gets valid user credentials from storage.
 
-    If nothing has been stored, or if the stored credentials are invalid,
-    the OAuth2 flow is completed to obtain the new credentials.
-
-    Returns:
-        Credentials, the obtained credential.
-    """
-    home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
-    if not os.path.exists(credential_dir):
-        os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir,
-                                   'calendar-python-quickstart.json')
-
-    store = oauth2client.file.Storage(credential_path)
-    credentials = store.get()
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
-        flow.user_agent = APPLICATION_NAME
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else:  # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
-        print('Storing credentials to ' + credential_path)
-    return credentials
-
-
-def create_event(request):
+def create_event(**kwargs):
     """Shows basic usage of the Google Calendar API.
-
     Creates a Google Calendar API service object and outputs a list of the next
     10 events on the user's calendar.
     """
-    credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    service = discovery.build('calendar', 'v3', http=http)
-    if request.method == "POST":
-        # summary = request.POST['title']
-        location = request.POST['location']
-        description = request.POST['description']
-        start = request.POST['start']
-        end = request.POST['end']
-        # recurrence = request.POST['recurrence']
-        patient = request.POST['patient']
-        doctor = request.POST['doctor']
-        # reminders = request.POST['reminders']
-        frequency = request.POST['frequency']
-
-
-        event = {
-            'summary':'googleI/O 2015',
-            'location': location,
-            'description': description,
-            'start': {
-                'dateTime': start,
-                'timeZone': 'America/Los_Angeles',
-            },
-            'end': {
-                'dateTime': end,
-                'timeZone': 'America/Los_Angeles',
-            },
-            'recurrence': [
-                f'RRULE:FREQ={frequency};COUNT={2}'
+    creds = {"token": "ya29.a0AfB_byCqGWxGP7Fnug6LkJKpNEpZl-PU_8X6AObUjYkEYiuElNRjB80lOUOH9MSOM0snMh5XQpBIuDQRZLNl1h8mPkfEC-12giLXAPFYlJPWAJR4-189ErR-F_FyLh4tnTENaAItO04DHNzTaQoR0zSzLRJlcLY2mF-XaCgYKAQISARASFQHGX2MiVHq-YbyAWjRT5Jg_UVRzKg0171",
+             "refresh_token": "1//03PnflHUx1-zGCgYIARAAGAMSNwF-L9IrK5eQ6pHoRNmeVqyY43H_p54HlxZKso0AFBlnRMoyNnTZL6DguVH_mrAlbWWB5xFWu1U",
+             "token_uri": "https://oauth2.googleapis.com/token",
+             "client_id": "254113491331-amuct4esb33nfopc3m9s1ig82d3g6ign.apps.googleusercontent.com",
+             "client_secret": "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",
+             "scopes": ["https://www.googleapis.com/auth/calendar.readonly"],
+             # "expiry": "2023-11-28T16:18:24.919719Z"
+             }
+    http = Credentials(**creds)
+    print(http)
+    dev_key = "AIzaSyCfMqMg-ihuDHvvLz7Q9mZ6bfvTPI4VyEQ"
+    service = discovery.build('calendar', 'v3', credentials=http, developerKey=dev_key)
+    print(service)
+    location = kwargs.get('location')
+    description = kwargs.get('description')
+    start = kwargs.get('start')
+    end = kwargs.get('end')
+    patient = kwargs.get('patient')
+    doctor = kwargs.get('doctor')
+    event = {
+        'summary': 'Google I/O 2015',
+        'location': location,
+        'description': description,
+        'start': {
+            'dateTime': start,
+            'timeZone': 'Africa/Nairobi',
+        },
+        'end': {
+            'dateTime': end,
+            'timeZone': 'Africa/Nairobi',
+        },
+        'recurrence': [
+            'RRULE:FREQ=DAILY;COUNT=2'
+        ],
+        'attendees': [
+            {'email': patient},
+            {'email': doctor},
+        ],
+        'reminders': {
+            'useDefault': False,
+            'overrides': [
+                {'method': 'email', 'minutes': 24 * 60},
+                {'method': 'popup', 'minutes': 10},
             ],
-            'attendees': [
-                {'email': patient},
-                {'email': doctor}
-            ],
-            'reminders': {
-                'useDefault': False,
-                'overrides': [
-                    {'method': 'email', 'minutes': 24 * 60},
-                    {'method': 'popup', 'minutes': 10},
-                ],
-            },
+        },
+    }
+    print(start)
+    print(end)
 
-        }
+    events_result = service.events().list(calendarId='primary').execute()
+    events = events_result.get('items', [])
+    for event in events:
+        start = event["start"].get("dateTime", event["start"].get("date"))
+        print(start)
 
-        event = service.events().insert(calendarId='primary', body=event).execute()
-        print('Event created: %s' % (event.get('htmlLink')))
-        context = {"message": event.get('htmlLink')}
-        return render(request, 'appointment.html', context=context)
+    return event

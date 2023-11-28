@@ -30,4 +30,5 @@ urlpatterns = [
     path('patient_page/', patient_page, name='patient_page'),
     path('generate_individual_pdf/<uuid:medication_id>/', GenerateIndividualPDF.as_view(), name='generate_individual_pdf'),
     path('google_calender', googleManager.google_calender, name='generate_individual_pdf'),
+    path('get_event/', get_event, name='get_event'),
 ]
